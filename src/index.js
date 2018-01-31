@@ -50,6 +50,7 @@ class QueryAssist extends Component {
       //   ? await this.props.getValues(this.state.attributeName)
       //   : await this.props.getAttributes()
 
+      this._input.focus()
       this.setState({
         loading: false,
         suggestions: suggestions
@@ -76,17 +77,17 @@ class QueryAssist extends Component {
 
     if (query) {
       const isExactMatch = this.state.suggestions.indexOf(query) > -1
+      const hasSpaces = query.indexOf(' ') > -1
 
       newState.suggestionsAddedTo = [
         // suggests a string wrapped in quotes as default,
         // unless there is a suggestion that matches one to one
         isExactMatch ? null : `"${query}"`,
         ...this.state.suggestions
-          // case insensitive filter for autocomplete
-          .filter(v => new RegExp(`^${escRegex(query)}`, 'i').test(v))
-          // only take the first 8 results to prevent huge list
-          // TODO: discuss this, maybe do it on api side
-          .slice(0, 8)
+          // case insensitive search for autocomplete results
+          .filter(v => new RegExp(escRegex(query), 'i').test(v)),
+        // suggest a wildcard if there are no spaces
+        hasSpaces ? null : `${query}*`
       ].filter(Boolean)
     }
 
@@ -97,22 +98,17 @@ class QueryAssist extends Component {
     return (
       <Container>
         <Input
-          autoComplete='off'
-          autoCorrect='off'
-          autoCapitalize='off'
-          spellCheck='false'
           value={this.state.query}
-          onChange={this.onChange}
-          onFocus={this.openDropdown}
-          innerRef={ref => (this._input = ref)} />
+          onFocus={this.openDropdown} />
 
         {this.state.isOpen &&
           <Dropdown
             loading={this.state.loading}
+            onChange={this.onChange}
+            select={this.select}
+            value={this.state.query}
             suggestions={this.state.suggestionsAddedTo || this.state.suggestions}
-            attributeName={this.state.attributeName}
-            attributeValue={this.state.query}
-            select={this.select} />}
+            innerRef={ref => (this._input = ref)} />}
       </Container>
     )
   }

@@ -1,5 +1,16 @@
 import React, { Component } from 'react'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
+
+const swingIn = keyframes`
+  0% {
+    opacity: 0;
+    transform: perspective(50em) rotateX(-30deg);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(50em) rotateX(0deg);
+  }
+`
 
 const Container = styled.aside`
   display: inline-block;
@@ -10,6 +21,11 @@ const Container = styled.aside`
   font-weight: 400;
   font-family: -apple-system, sans-serif;
   width: 300px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  transform-origin: 50% 0;
+  animation: ${swingIn} 250ms ease-in-out;
 `
 
 const Inner = styled.div`
@@ -21,10 +37,22 @@ const Inner = styled.div`
 `
 
 const Query = styled.div`
+  border-bottom: 1px solid rgba(255, 255, 255, .15);
   color: #FFFFFF;
   font-size: 18px;
-  padding: 5px 15px 7px;
-  border-bottom: 1px solid rgba(255, 255, 255, .15);
+  padding: 0 15px;
+`
+
+const QueryInput = styled.input`
+  background: none;
+  border: none;
+  outline: none;
+  color: inherit;
+  font-size: inherit;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 100%;
+  padding: 5px 0 7px;
 `
 
 const Attribute = styled.span`
@@ -142,7 +170,7 @@ export default class extends Component {
     const maxIndex = this.props.suggestions.length - 1
 
     // default to selecting the first option only after typing something
-    if (this.state.selectedIdx === null && this.props.attributeValue) {
+    if (this.state.selectedIdx === null && this.props.value) {
       this.setState({ selectedIdx: 0 })
     }
 
@@ -201,17 +229,28 @@ export default class extends Component {
   render () {
     const {
       loading,
-      attributeName,
-      attributeValue,
+      onChange,
+      attribute,
+      value,
       suggestions,
-      note
+      note,
+      innerRef
     } = this.props
 
     return (
       <Container>
         <Query>
-          <Attribute>{attributeName && `${attributeName}:`}</Attribute>
-          {attributeValue}
+          {attribute &&
+            <Attribute>{attribute}:</Attribute>}
+
+          <QueryInput
+            autoComplete='off'
+            autoCorrect='off'
+            autoCapitalize='off'
+            spellCheck='false'
+            onChange={onChange}
+            value={value}
+            innerRef={innerRef} />
         </Query>
 
         <Suggestions>
@@ -228,7 +267,7 @@ export default class extends Component {
             <SuggestionInactive>Loading...</SuggestionInactive>}
         </Suggestions>
 
-        {attributeName &&
+        {attribute &&
           <Inner>
             <Operator active>
               <Key>:</Key>
