@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import { render } from 'react-dom'
 import styled, { injectGlobal } from 'styled-components'
-// import QueryAssist from '../../src'
-import Dropdown from '../../src/dropdown'
+import QueryAssist from '../../src'
 
 injectGlobal`
   * {
@@ -20,12 +19,45 @@ const Container = styled.div`
 `
 
 class Demo extends Component {
+  async getAttributes () {
+    await new Promise(resolve => setTimeout(resolve, 100))
+    return [
+      'level',
+      'http.method',
+      'http_response.status',
+      'heroku.dyno_id',
+      'heroku.source'
+    ]
+  }
+
+  async getValues (attr) {
+    await new Promise(resolve => setTimeout(resolve, 100))
+    if (attr === 'level') {
+      return [
+        'info',
+        'error',
+        'warn',
+        'debug',
+        'critical'
+      ]
+    }
+    if (attr === 'http.method') {
+      return [
+        'GET',
+        'POST',
+        'PUT',
+        'PATCH',
+        'DELETE'
+      ]
+    }
+  }
+
   render () {
     return (
       <Container>
-        {/* <QueryAssist /> */}
-        <Dropdown searching />
-        <Dropdown done />
+        <QueryAssist
+          getAttributes={this.getAttributes}
+          getValues={this.getValues} />
       </Container>
     )
   }

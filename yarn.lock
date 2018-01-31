@@ -2453,10 +2453,6 @@ double-ended-queue@^2.1.0-0:
   version "2.1.0-0"
   resolved "https://registry.yarnpkg.com/double-ended-queue/-/double-ended-queue-2.1.0-0.tgz#103d3527fd31528f40188130c841efdd78264e5c"
 
-downshift@^1.26.1:
-  version "1.26.1"
-  resolved "https://registry.yarnpkg.com/downshift/-/downshift-1.26.1.tgz#ae45a016f211d02f8000584d0b466142fde2dd6b"
-
 duplexer2@^0.1.2, duplexer2@~0.1.0, duplexer2@~0.1.2:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/duplexer2/-/duplexer2-0.1.4.tgz#8b12dab878c0d69e3e7891051662a32fc6bddcc1"

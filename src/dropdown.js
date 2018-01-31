@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component } from 'react'
 import styled from 'styled-components'
 
 const Container = styled.aside`
@@ -9,7 +9,7 @@ const Container = styled.aside`
   font-size: 14px;
   font-weight: 400;
   font-family: -apple-system, sans-serif;
-  width: 320px;
+  width: 300px;
 `
 
 const Inner = styled.div`
@@ -40,13 +40,17 @@ const Suggestions = styled.ul`
 `
 
 const Suggestion = styled.li`
-  background: ${props => props.active ? '#676C83' : 'none'};
-  font-weight: ${props => props.active ? 500 : 300};
+  background: ${props => props.active ? '#6554AF' : 'none'};
   padding: 2px 15px;
   cursor: pointer;
+`
+
+const SuggestionInactive = Suggestion.extend`
+  font-style: italic;
+  cursor: default;
+  opacity: 0.5;
   &:hover {
-    background: #676C83;
-    font-weight: 500;
+    background: none;
   }
 `
 
@@ -116,65 +120,160 @@ const Button = styled.a`
   cursor: pointer;
 `
 
-export default function (props) {
-  return (
-    <Container>
-      <Query>
-        <Attribute>level:</Attribute>debug
-      </Query>
+export default class extends Component {
+  constructor () {
+    super()
+    this.keydown = this.keydown.bind(this)
+    this.select = this.select.bind(this)
+    this.state = {
+      selectedIdx: null
+    }
+  }
 
-      {props.searching &&
-        <div>
-          <Suggestions>
-            <Suggestion>"debug"</Suggestion>
-            <Suggestion>info</Suggestion>
-            <Suggestion>error</Suggestion>
-            <Suggestion>warn</Suggestion>
-            <Suggestion active>debug</Suggestion>
-            <Suggestion>critical</Suggestion>
-            <Suggestion>debug*</Suggestion>
-          </Suggestions>
+  componentDidMount () {
+    document.addEventListener('keydown', this.keydown, false)
+  }
 
+  componentWillUnmount () {
+    document.removeEventListener('keydown', this.keydown, false)
+  }
+
+  componentDidUpdate () {
+    const maxIndex = this.props.suggestions.length - 1
+
+    // default to selecting the first option only after typing something
+    if (this.state.selectedIdx === null && this.props.attributeValue) {
+      this.setState({ selectedIdx: 0 })
+    }
+
+    // to make sure selection doesn't go out of bounds when filtering,
+    // this keeps the last item selected as list gets reduced
+    if (maxIndex >= 0 && this.state.selectedIdx > maxIndex) {
+      this.setState({ selectedIdx: maxIndex })
+    }
+  }
+
+  keydown (e) {
+    const codes = [13, 38, 40]
+
+    if (codes.indexOf(e.keyCode) > -1) {
+      e.preventDefault()
+    }
+
+    // enter key
+    if (e.keyCode === codes[0]) {
+      this.select()
+    }
+
+    // up arrow key
+    if (e.keyCode === codes[1]) {
+      // start from bottom of list if nothing is currently selected
+      const newIdx = this.state.selectedIdx !== null
+        ? this.state.selectedIdx - 1
+        : this.props.suggestions.length - 1
+
+      this.setState({
+        selectedIdx: newIdx > 0 ? newIdx : 0
+      })
+    }
+
+    // down arrow key
+    if (e.keyCode === codes[2]) {
+      const max = this.props.suggestions.length - 1
+      // start from top of list if nothing is currently selected
+      const newIdx = this.state.selectedIdx !== null
+        ? this.state.selectedIdx + 1
+        : 0
+
+      this.setState({
+        selectedIdx: newIdx < max ? newIdx : max
+      })
+    }
+  }
+
+  select () {
+    const idx = this.state.selectedIdx
+    const selected = this.props.suggestions[idx]
+
+    this.props.select(selected)
+  }
+
+  render () {
+    const {
+      loading,
+      attributeName,
+      attributeValue,
+      suggestions,
+      note
+    } = this.props
+
+    return (
+      <Container>
+        <Query>
+          <Attribute>{attributeName && `${attributeName}:`}</Attribute>
+          {attributeValue}
+        </Query>
+
+        <Suggestions>
+          {suggestions.map((suggestion, key) =>
+            <Suggestion
+              key={key}
+              active={this.state.selectedIdx === key}
+              onClick={this.select}
+              onMouseOver={() => this.setState({ selectedIdx: key })}>
+              {suggestion}
+            </Suggestion>)}
+
+          {loading &&
+            <SuggestionInactive>Loading...</SuggestionInactive>}
+        </Suggestions>
+
+        {attributeName &&
           <Inner>
-            <Operator active><Key>:</Key> EQUALS</Operator>
-            <Operator><Key>-</Key> DOESN'T EQUAL</Operator>
-          </Inner>
+            <Operator active>
+              <Key>:</Key>
+              EQUALS
+            </Operator>
 
-          <Inner center>
-            <Helper>
-              <KeyOutline>▲</KeyOutline>
-              <KeyOutline>▼</KeyOutline>
-              to navigate
-            </Helper>
+            <Operator>
+              <Key>-</Key>
+              DOESN{`'`}T EQUAL
+            </Operator>
+          </Inner>}
 
-            <Helper>
-              <KeyOutline long>↵</KeyOutline>
-              to select
-            </Helper>
-          </Inner>
-        </div>}
+        <Inner center>
+          <Helper>
+            <KeyOutline>▲</KeyOutline>
+            <KeyOutline>▼</KeyOutline>
+            to navigate
+          </Helper>
 
-      {props.done &&
-        <div>
-          <Note>
-            This is a helpful note about conjunctions and other available query helpers.
-          </Note>
+          <Helper>
+            <KeyOutline long>↵</KeyOutline>
+            to select
+          </Helper>
+        </Inner>
 
-          <Inner center>
-            <Helper>
-              <KeyOutline long>↵</KeyOutline>
-              to close
-            </Helper>
-          </Inner>
-        </div>}
+        {note &&
+          <div>
+            <Note>{note}</Note>
 
-      <Inner center noBorder>
-        <Button
-          target='_blank'
-          href='https://timber.io/docs/app/console/searching'>
-          Learn more
-        </Button>
-      </Inner>
-    </Container>
-  )
+            <Inner center>
+              <Helper>
+                <KeyOutline long>↵</KeyOutline>
+                to close
+              </Helper>
+            </Inner>
+          </div>}
+
+        <Inner center noBorder>
+          <Button
+            target='_blank'
+            href='https://timber.io/docs/app/console/searching'>
+            Learn more
+          </Button>
+        </Inner>
+      </Container>
+    )
+  }
 }

@@ -1,5 +1,6 @@
 import React from 'react'
-import { unmountComponentAtNode } from 'react-dom'
+import expect from 'expect'
+import { render, unmountComponentAtNode } from 'react-dom'
 import Component from '../src'
 
 describe('Component', () => {
