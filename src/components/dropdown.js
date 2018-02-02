@@ -1,8 +1,6 @@
 // TODO:
 // - handle groups and conjunctions
-// - allow use of colon when you backtrack to attribute
-// - auto selected index is wanky
-// - typing level:f returns a wildcard suggestion for f* when it shouldnt
+// - sort suggestions and highlight closest match
 
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
@@ -133,6 +131,7 @@ class Dropdown extends Component {
     this.keydown = this.keydown.bind(this)
     this.handleDeleteKey = this.handleDeleteKey.bind(this)
     this.handleEnterKey = this.handleEnterKey.bind(this)
+    this.handleEscKey = this.handleEscKey.bind(this)
     this.handleUpKey = this.handleUpKey.bind(this)
     this.handleDownKey = this.handleDownKey.bind(this)
     this.handleColonKey = this.handleColonKey.bind(this)
@@ -146,6 +145,7 @@ class Dropdown extends Component {
     this.buildQuery = this.buildQuery.bind(this)
     this.state = {
       loading: true,
+      dirty: false,
       value: '',
       attribute: null,
       operator: '',
@@ -225,7 +225,10 @@ class Dropdown extends Component {
     switch (evt.keyCode) {
       case 8: this.handleDeleteKey(evt)
         break
+      case 9: // same functionality for tab key
       case 13: this.handleEnterKey(evt)
+        break
+      case 27: this.handleEscKey(evt)
         break
       case 38: this.handleUpKey(evt)
         break
@@ -258,13 +261,22 @@ class Dropdown extends Component {
   }
 
   /**
-   * when the dropdown is open, pressing enter simulates
+   * when the dropdown is open, pressing enter/tab simulates
    * clicking the currently active suggestion. will do
    * nothing when there are no suggestions active.
    */
   handleEnterKey (evt) {
     evt.preventDefault()
     this.onChangeSimulate()
+  }
+
+  /**
+   * close the dropdow without passing through any values
+   * when the escape key is pressed.
+   */
+  handleEscKey (evt) {
+    evt.preventDefault()
+    this.props.onClose()
   }
 
   /**
@@ -307,12 +319,13 @@ class Dropdown extends Component {
   }
 
   /**
-   * since the component handles attribute:value groups by default,
-   * it could mess things up for the user to manually type a colon
-   * while the dropdown is open. just prevent it for now.
+   * since attributes and values are seperated by colon,
+   * immediately shift the focus to the value when the
+   * key is pressed.
    */
   handleColonKey (evt) {
     evt.preventDefault()
+    this.shiftFocus()
   }
 
   /**
@@ -372,19 +385,16 @@ class Dropdown extends Component {
           { char: '>', name: 'GT' },
           { char: '<', name: 'LT' }
         ]
-        break
       case '<=':
       case '>=':
         return [
           { char: '>=', name: 'GTE' },
           { char: '<=', name: 'LTE' }
         ]
-        break
       default:
         return !this.state.attribute
           ? [{ char: '-', name: 'NEGATION' }]
           : []
-        break
     }
   }
 
@@ -481,7 +491,7 @@ class Dropdown extends Component {
     const { attribute, loading } = this.state
 
     // make sure whitespace doesn't mess up the filtering
-    const value = evt.target.value.trim()
+    const value = evt.target.value.trim() || ''
 
     // only update the value if still loading
     // prevents missed characters when switching between dropdown and search bar
@@ -497,6 +507,12 @@ class Dropdown extends Component {
       this.props.onClose && this.props.onClose(value)
     }
 
+    // default to selecting first suggestion if input is dirty,
+    // or if there is only one option available to choose from
+    const selectedSuggestion =
+      (this.state.dirty && !this.state.selectedSuggestion) ||
+      filtered.length === 1 ? 0 : this.state.selectedSuggestion
+
     // are we filtering attributes or values?
     const key = attribute
       ? 'valueSuggestionsFiltered'
@@ -510,7 +526,12 @@ class Dropdown extends Component {
     this.setState({
       value,
       operator,
-      [key]: filtered
+      selectedSuggestion,
+      [key]: filtered,
+      // once input has been touched, so we can adjust selectedSuggestion
+      // there is no initial selection when dropdown opens,
+      // but once input is dirty, there will always be something selected by default
+      dirty: true
     }, () => {
       this.props.onChange &&
         // this also depends on state.value, so keep in callback
@@ -538,9 +559,11 @@ class Dropdown extends Component {
    */
   onChangeSimulate () {
     // get the currently active suggestion,
+    const suggestions = this.getSuggestions(true)[this.state.selectedSuggestion]
+
     // and prepend the operator if there is one
-    const value = this.state.operator +
-      this.getSuggestions(true)[this.state.selectedSuggestion]
+    // need the suggestions default, or it stringifies "undefined"
+    const value = `${this.state.operator}${suggestions || ''}`
 
     // reset selection to top
     value && this.setState({ selectedSuggestion: 0 }, () => {
@@ -569,7 +592,9 @@ class Dropdown extends Component {
     const suggestions = this.getSuggestions(true)
 
     return (
-      <Container className={this.props.className}>
+      <Container
+        style={this.props.style}
+        className={this.props.className}>
         <Section
           cursor='text'
           onClick={() => this._input.focus()}
