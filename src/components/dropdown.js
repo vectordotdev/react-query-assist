@@ -1,8 +1,5 @@
 // TODO:
-// - handle negation by leading attribute with "-"
-// - keep negation symbol when selecting attribute
-// - handle operator switching
-// - prefilter all operators when filtering suggestions
+// - handle operator badges
 // - handle groups and conjunctions
 
 import React, { Component } from 'react'
@@ -137,6 +134,7 @@ class Dropdown extends Component {
     this.handleUpKey = this.handleUpKey.bind(this)
     this.handleDownKey = this.handleDownKey.bind(this)
     this.handleColonKey = this.handleColonKey.bind(this)
+    this.preFilter = this.preFilter.bind(this)
     this.filterSuggestions = this.filterSuggestions.bind(this)
     this.shiftFocus = this.shiftFocus.bind(this)
     this.onChange = this.onChange.bind(this)
@@ -146,8 +144,7 @@ class Dropdown extends Component {
       loading: true,
       value: '',
       attribute: null,
-      // negated: false,
-      // operator: '',
+      operator: null,
       selectedSuggestion: null,
       attributeSuggestions: [],
       valueSuggestions: []
@@ -315,18 +312,26 @@ class Dropdown extends Component {
   }
 
   /**
+   * runs a prefilter on a value to take out any special
+   * characters or operators before running through filter.
+   */
+  preFilter (value) {
+    const operators = ['-', '<', '>', '<=', '>=']
+    const regex = new RegExp(`^[${operators.join('|')}]`)
+
+    return value.replace(regex, '')
+  }
+
+  /**
    * runs the suggestions through a regex filter based on
    * the current input value. also adds additional suggestions
    * (such as wildcards) under different circumstances.
    */
   filterSuggestions (value) {
-    // dont take operators into account when filtering
-    const preFiltered = value.replace(/^-/, '')
-
     // case insensitive search through each suggestion
-    // always use originals, since we don't want a recursive filter
+    // always use original suggestions, since we don't want a recursive filter
     const filtered = this.getSuggestions().filter(v =>
-      new RegExp(escape(preFiltered), 'i').test(v))
+      new RegExp(escape(this.preFilter(value)), 'i').test(v))
 
     // values sometimes have additional suggestions that attribtues do not
     if (this.state.attribute) {
@@ -334,7 +339,8 @@ class Dropdown extends Component {
       const attrHasValues = this.getSuggestions().length > 0
 
       // suggest quoted value if the attribute has no enums
-      const quoteWrapped = !attrHasValues && value ? `"${value}"` : null
+      const quoteWrapped = value && !attrHasValues && !this.state.operator
+        ? `"${value}"` : null
 
       // do not suggest wildcard if the value has spaces (good?)
       const hasSpaces = value.indexOf(' ') > -1
@@ -374,7 +380,9 @@ class Dropdown extends Component {
       })
 
       try {
-        const values = (await this.props.getValues(value)) || []
+        // prefilter since we don't want operators
+        const preFiltered = this.preFilter(value)
+        const values = (await this.props.getValues(preFiltered)) || []
 
         this.setState({
           loading: false,
@@ -397,7 +405,12 @@ class Dropdown extends Component {
    */
   onChange (evt, simulated) {
     const { value } = evt.target
-    const { attribute } = this.state
+    const { attribute, loading } = this.state
+
+    // prevents updating an unmounted component
+    if (loading) {
+      return
+    }
 
     const filtered = this.filterSuggestions(value)
 
@@ -411,16 +424,24 @@ class Dropdown extends Component {
       ? 'valueSuggestionsFiltered'
       : 'attributeSuggestionsFiltered'
 
+    // extract the operator, if there is one
+    const operatorMatch = value.match(/(.*?)[\w]/) || []
+    const operator = operatorMatch.length ? operatorMatch[1] : null
+
     // shiftFocus checks need to be in state callback,
     // since it depends on the current value in the state
-    this.setState({ value, [key]: filtered }, () => {
+    this.setState({
+      value,
+      operator,
+      [key]: filtered
+    }, () => {
       this.props.onChange &&
         // this also depends on state.value, so keep in callback
         this.props.onChange(this.buildQuery())
 
       // move on if reduced to an exact match
       const isMatch = filtered.length && value &&
-        value.toLowerCase() === filtered[0].toLowerCase()
+        this.preFilter(value).toLowerCase() === filtered[0].toLowerCase()
 
       if (
         // we found an exact match in suggestions
@@ -439,8 +460,10 @@ class Dropdown extends Component {
    * the autoselected value.
    */
   onChangeSimulate () {
-    // get the currently active suggestion
-    const value = this.getSuggestions(true)[this.state.selectedSuggestion]
+    // get the currently active suggestion,
+    // and prepend the operator if there is one
+    let value = this.state.operator +
+      this.getSuggestions(true)[this.state.selectedSuggestion]
 
     // reset selection to top
     value && this.setState({ selectedSuggestion: 0 }, () => {
