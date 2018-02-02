@@ -4,7 +4,13 @@
 [![npm package][npm-badge]][npm]
 [![Coveralls][coveralls-badge]][coveralls]
 
-WIP
+## Todo
+
+- [ ] Display tokens as React components inside query input
+- [ ] Figure out how to make contentEditable work with react (for above item)
+- [ ] Position dropdown where the cursor is when it opens
+- [ ] Handle groups and conjunctions visually
+- [ ] Sort suggestions and highlight closest match
 
 [build-badge]: https://img.shields.io/travis/timberio/react-query-assist/master.png?style=flat-square
 [build]: https://travis-ci.org/timberio/react-query-assist

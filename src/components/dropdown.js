@@ -1,7 +1,3 @@
-// TODO:
-// - handle groups and conjunctions
-// - sort suggestions and highlight closest match
-
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled, { keyframes } from 'styled-components'

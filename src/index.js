@@ -1,8 +1,3 @@
-// TODO:
-// - figure out how to make contentEditable work
-// - display tokens as react components
-// - position dropdown where the cursor is
-
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
