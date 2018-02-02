@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import escRegex from 'escape-string-regexp'
-import Dropdown from './dropdown'
+import DropdownUnstyled from './components/dropdown'
 
 const Container = styled.div`
   position: relative;
+  width: 100%;
 `
 
 const Input = styled.input`
@@ -21,94 +21,64 @@ const Input = styled.input`
   outline: none;
 `
 
+const Dropdown = styled(DropdownUnstyled)`
+  position: absolute;
+  top: 100%;
+  left: 0;
+`
+
 class QueryAssist extends Component {
   constructor () {
     super()
     this.openDropdown = this.openDropdown.bind(this)
-    this.select = this.select.bind(this)
-    this.onChange = this.onChange.bind(this)
+    this.closeDropdown = this.closeDropdown.bind(this)
+    this.addBlock = this.addBlock.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
     this.state = {
-      query: '',
-      loading: true,
-      isOpen: false,
-      suggestions: [],
-      attributeName: null,
-      attributeValue: null
+      currentQuery: '',
+      dropdownOpen: false
     }
   }
 
-  async openDropdown () {
+  openDropdown () {
     this.setState({
-      isOpen: true
-    })
-
-    try {
-      const suggestions = (await this.props.getAttributes())
-        .map(suggestion => `${suggestion}:`)
-
-      // const suggestions = this.state.attributeName
-      //   ? await this.props.getValues(this.state.attributeName)
-      //   : await this.props.getAttributes()
-
-      this._input.focus()
-      this.setState({
-        loading: false,
-        suggestions: suggestions
-      })
-    } catch (err) {
-      console.error(err)
-    }
+      dropdownOpen: true
+    }, () => this._dropdown.click())
   }
 
-  select (val) {
-    this._input.focus()
+  closeDropdown () {
     this.setState({
-      query: val
+      dropdownOpen: false
     })
   }
 
-  onChange (e) {
-    const query = e.target.value
-    const newState = {
-      query: query,
-      // dont filter original array so you can backtrack
-      suggestionsAddedTo: this.state.suggestions
-    }
+  addBlock (block) {
+    this.setState({
+      currentQuery: `${this.state.currentQuery}${block} `
+    })
+  }
 
-    if (query) {
-      const isExactMatch = this.state.suggestions.indexOf(query) > -1
-      const hasSpaces = query.indexOf(' ') > -1
-
-      newState.suggestionsAddedTo = [
-        // suggests a string wrapped in quotes as default,
-        // unless there is a suggestion that matches one to one
-        isExactMatch ? null : `"${query}"`,
-        ...this.state.suggestions
-          // case insensitive search for autocomplete results
-          .filter(v => new RegExp(escRegex(query), 'i').test(v)),
-        // suggest a wildcard if there are no spaces
-        hasSpaces ? null : `${query}*`
-      ].filter(Boolean)
-    }
-
-    this.setState(newState)
+  handleSubmit (evt) {
+    evt.preventDefault()
+    this.props.onQuery(this.state.currentQuery)
   }
 
   render () {
     return (
       <Container>
-        <Input
-          value={this.state.query}
-          onFocus={this.openDropdown} />
+        <form onSubmit={this.handleSubmit}>
+          <Input
+            value={this.state.currentQuery}
+            onFocus={this.openDropdown} />
+        </form>
 
-        {this.state.isOpen &&
+        {this.state.dropdownOpen &&
           <Dropdown
-            loading={this.state.loading}
-            onChange={this.onChange}
-            select={this.select}
-            value={this.state.query}
-            suggestions={this.state.suggestionsAddedTo || this.state.suggestions}
-            innerRef={ref => (this._input = ref)} />}
+            getAttributes={this.props.getAttributes}
+            getValues={this.props.getValues}
+            onDone={this.addBlock}
+            onClose={this.closeDropdown}
+            containerRef={ref => (this._dropdown = ref)} />}
       </Container>
     )
   }
@@ -116,7 +86,8 @@ class QueryAssist extends Component {
 
 QueryAssist.propTypes = {
   getAttributes: PropTypes.func.isRequired,
-  getValues: PropTypes.func.isRequired
+  getValues: PropTypes.func.isRequired,
+  onQuery: PropTypes.func.isRequired
 }
 
 export default QueryAssist

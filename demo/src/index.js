@@ -7,6 +7,7 @@ injectGlobal`
   * {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
   }
 `
 
@@ -15,12 +16,11 @@ const Container = styled.div`
   width: 100vw;
   height: 100vh;
   padding: 20px;
-  box-sizing: border-box;
 `
 
 class Demo extends Component {
   async getAttributes () {
-    await new Promise(resolve => setTimeout(resolve, 100))
+    await new Promise(resolve => setTimeout(resolve, 1000))
     return [
       'level',
       'http.method',
@@ -31,7 +31,7 @@ class Demo extends Component {
   }
 
   async getValues (attr) {
-    await new Promise(resolve => setTimeout(resolve, 100))
+    await new Promise(resolve => setTimeout(resolve, 1000))
     if (attr === 'level') {
       return [
         'info',
@@ -57,7 +57,8 @@ class Demo extends Component {
       <Container>
         <QueryAssist
           getAttributes={this.getAttributes}
-          getValues={this.getValues} />
+          getValues={this.getValues}
+          onQuery={query => console.log(query)} />
       </Container>
     )
   }
