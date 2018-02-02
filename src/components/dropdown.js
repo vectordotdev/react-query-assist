@@ -1,6 +1,8 @@
 // TODO:
-// - handle operator badges
 // - handle groups and conjunctions
+// - allow use of colon when you backtrack to attribute
+// - auto selected index is wanky
+// - typing level:f returns a wildcard suggestion for f* when it shouldnt
 
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
@@ -70,20 +72,20 @@ const Suggestion = styled.li`
   cursor: pointer;
 `
 
-// const Operator = styled.div`
-//   display: inline-block;
-//   background: #676C83;
-//   border-radius: 2px;
-//   color: #FFFFFF;
-//   font-weight: 500;
-//   padding: 5px 10px;
-//   margin-right: 5px;
-//   cursor: pointer;
-//   opacity: ${props => props.active ? 1 : 0.4};
-//   &:hover {
-//     opacity: ${props => props.active ? 1 : 0.6};
-//   }
-// `
+const Operator = styled.div`
+  display: inline-block;
+  background: #676C83;
+  border-radius: 2px;
+  color: #FFFFFF;
+  font-weight: 500;
+  padding: 5px 10px;
+  margin-right: 5px;
+  cursor: pointer;
+  opacity: ${props => props.active ? 1 : 0.3};
+  &:hover {
+    opacity: ${props => props.active ? 1 : 0.6};
+  }
+`
 
 const Key = styled.div`
   display: inline-block;
@@ -134,7 +136,9 @@ class Dropdown extends Component {
     this.handleUpKey = this.handleUpKey.bind(this)
     this.handleDownKey = this.handleDownKey.bind(this)
     this.handleColonKey = this.handleColonKey.bind(this)
-    this.preFilter = this.preFilter.bind(this)
+    this.setOperator = this.setOperator.bind(this)
+    this.extractOperator = this.extractOperator.bind(this)
+    this.getRelatedOperators = this.getRelatedOperators.bind(this)
     this.filterSuggestions = this.filterSuggestions.bind(this)
     this.shiftFocus = this.shiftFocus.bind(this)
     this.onChange = this.onChange.bind(this)
@@ -144,7 +148,7 @@ class Dropdown extends Component {
       loading: true,
       value: '',
       attribute: null,
-      operator: null,
+      operator: '',
       selectedSuggestion: null,
       attributeSuggestions: [],
       valueSuggestions: []
@@ -312,14 +316,76 @@ class Dropdown extends Component {
   }
 
   /**
-   * runs a prefilter on a value to take out any special
-   * characters or operators before running through filter.
+   * changes the current operator being used without
+   * having to type it, and prepends it to the value.
+   * if the old operator and new operator are the same,
+   * it toggles it instead. method is called when operator
+   * buttons are clicked.
    */
-  preFilter (value) {
-    const operators = ['-', '<', '>', '<=', '>=']
-    const regex = new RegExp(`^[${operators.join('|')}]`)
+  setOperator (operator) {
+    const {
+      value: oldValue,
+      operator: oldOperator
+    } = this.state
 
-    return value.replace(regex, '')
+    // remove the current operator
+    if (operator === oldOperator) {
+      const regex = new RegExp(`^${operator}`)
+      const value = oldValue.replace(regex, '')
+
+      this.setState({ value, operator: '' })
+    // replace the current operator
+    } else {
+      const value = `${operator}${this.extractOperator(oldValue)}`
+      this.setState({ value, operator })
+    }
+
+    // since we lose focus when clicking on operator button
+    this._input.focus()
+  }
+
+  /**
+   * extracts predefined operators from the beginning of a value.
+   * can specify whether you want to return the value without
+   * its operators, or the extracted operator itself.
+   */
+  extractOperator (value, shouldReturnOperator) {
+    // note that order is important. ">=" must come before ">"
+    // otherwise ">" will match first, leaving "=" behind
+    const operators = ['-', '<=', '>=', '<', '>'].join('|')
+    const regex = new RegExp(`^(${operators})?(.*)`)
+
+    return value.replace(regex, shouldReturnOperator ? '$1' : '$2')
+  }
+
+  /**
+   * finds all the operators that are related to the one that
+   * is currently in use. returns the negation operator for
+   * attributes only, since tokens can only be negated as a whole.
+   * e.g. "-level:info" instead of "level:-info"
+   */
+  getRelatedOperators () {
+    switch (this.state.operator) {
+      case '<':
+      case '>':
+        return [
+          { char: '>', name: 'GT' },
+          { char: '<', name: 'LT' }
+        ]
+        break
+      case '<=':
+      case '>=':
+        return [
+          { char: '>=', name: 'GTE' },
+          { char: '<=', name: 'LTE' }
+        ]
+        break
+      default:
+        return !this.state.attribute
+          ? [{ char: '-', name: 'NEGATION' }]
+          : []
+        break
+    }
   }
 
   /**
@@ -328,10 +394,12 @@ class Dropdown extends Component {
    * (such as wildcards) under different circumstances.
    */
   filterSuggestions (value) {
+    const prefiltered = this.extractOperator(value)
+
     // case insensitive search through each suggestion
     // always use original suggestions, since we don't want a recursive filter
     const filtered = this.getSuggestions().filter(v =>
-      new RegExp(escape(this.preFilter(value)), 'i').test(v))
+      new RegExp(escape(prefiltered), 'i').test(v))
 
     // values sometimes have additional suggestions that attribtues do not
     if (this.state.attribute) {
@@ -344,7 +412,11 @@ class Dropdown extends Component {
 
       // do not suggest wildcard if the value has spaces (good?)
       const hasSpaces = value.indexOf(' ') > -1
-      const wildcardStr = !hasSpaces ? `${value}*` : null
+      const wildcardStr = prefiltered && !hasSpaces
+        ? `${prefiltered}*`
+        : null
+
+      // need to have at least one result to have a wildcard suggestion
       const wildcard = attrHasValues
         // suggest wildcard unless we reduced enums to zero
         ? filtered.length ? wildcardStr : null
@@ -374,6 +446,8 @@ class Dropdown extends Component {
 
       this.setState({
         loading: true,
+        // clear out operator to make sure it's not reused
+        operator: '',
         // shift the focus by moving value over to attribute
         attribute: value,
         value: ''
@@ -381,7 +455,7 @@ class Dropdown extends Component {
 
       try {
         // prefilter since we don't want operators
-        const preFiltered = this.preFilter(value)
+        const preFiltered = this.extractOperator(value)
         const values = (await this.props.getValues(preFiltered)) || []
 
         this.setState({
@@ -404,19 +478,23 @@ class Dropdown extends Component {
    * matches are found. assumed the user is entering a basic keyword.
    */
   onChange (evt, simulated) {
-    const { value } = evt.target
     const { attribute, loading } = this.state
 
-    // prevents updating an unmounted component
+    // make sure whitespace doesn't mess up the filtering
+    const value = evt.target.value.trim()
+
+    // only update the value if still loading
+    // prevents missed characters when switching between dropdown and search bar
     if (loading) {
-      return
+      return this.setState({ value })
     }
 
     const filtered = this.filterSuggestions(value)
 
     // close dropdown if no attributes are found
-    if (filtered.length < 1 && !attribute) {
-      this.props.onClose && this.props.onClose()
+    if (!attribute && filtered.length < 1) {
+      // pass through value since dropdown no longer handles it
+      this.props.onClose && this.props.onClose(value)
     }
 
     // are we filtering attributes or values?
@@ -425,8 +503,7 @@ class Dropdown extends Component {
       : 'attributeSuggestionsFiltered'
 
     // extract the operator, if there is one
-    const operatorMatch = value.match(/(.*?)[\w]/) || []
-    const operator = operatorMatch.length ? operatorMatch[1] : null
+    const operator = this.extractOperator(value, true)
 
     // shiftFocus checks need to be in state callback,
     // since it depends on the current value in the state
@@ -441,7 +518,7 @@ class Dropdown extends Component {
 
       // move on if reduced to an exact match
       const isMatch = filtered.length && value &&
-        this.preFilter(value).toLowerCase() === filtered[0].toLowerCase()
+        this.extractOperator(value).toLowerCase() === filtered[0].toLowerCase()
 
       if (
         // we found an exact match in suggestions
@@ -462,7 +539,7 @@ class Dropdown extends Component {
   onChangeSimulate () {
     // get the currently active suggestion,
     // and prepend the operator if there is one
-    let value = this.state.operator +
+    const value = this.state.operator +
       this.getSuggestions(true)[this.state.selectedSuggestion]
 
     // reset selection to top
@@ -528,17 +605,22 @@ class Dropdown extends Component {
             Please try again.
           </Note>}
 
-        {/* <Section center>
-          <Operator active>
-            <Key>:</Key>
-            EQUALS
-          </Operator>
-
-          <Operator>
+        <Section>
+          {this.getRelatedOperators().map((operator, key) =>
+            <Operator
+              key={key}
+              active={this.state.operator === operator.char}
+              onClick={() => this.setOperator(operator.char)}>
+              <Key>{operator.char}</Key>
+              {operator.name}
+            </Operator>)}
+          {/* <Operator
+            active={this.state.operator === '-'}
+            onClick={() => this.setOperator('-')}>
             <Key>-</Key>
-            DOESN{`'`}T EQUAL
-          </Operator>
-        </Section> */}
+            NEGATION
+          </Operator> */}
+        </Section>
 
         <Section center>
           <Helper>
