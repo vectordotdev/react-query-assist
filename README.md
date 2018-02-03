@@ -16,12 +16,11 @@
 - [ ] Selecting value from dropdown should insert space and reopen dropdown
 - [ ] Dropdown should always come up when input is empty
 - [ ] Visually distinguish tokens
-- [ ] Up/down arrows should wrap when selecting
 - [ ] Moving cursor to half-completed term should bring up assist
 - [ ] Always close dropdown when it loses focus
 - [ ] Wait to show wildcard suggestion until something is typed
 - [ ] Only show <, >, <=, >= operators for numeric fields
-- [ ] Only show wildcard suggetion for strings
+- [ ] Only show wildcard suggestion for strings
 - [ ] Only suggestion quoted when a string
 
 ## API Mock

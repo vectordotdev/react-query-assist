@@ -128,8 +128,7 @@ class Dropdown extends Component {
     this.handleDeleteKey = this.handleDeleteKey.bind(this)
     this.handleEnterKey = this.handleEnterKey.bind(this)
     this.handleEscKey = this.handleEscKey.bind(this)
-    this.handleUpKey = this.handleUpKey.bind(this)
-    this.handleDownKey = this.handleDownKey.bind(this)
+    this.handleArrowKeys = this.handleArrowKeys.bind(this)
     this.handleColonKey = this.handleColonKey.bind(this)
     this.setOperator = this.setOperator.bind(this)
     this.extractOperator = this.extractOperator.bind(this)
@@ -226,9 +225,8 @@ class Dropdown extends Component {
         break
       case 27: this.handleEscKey(evt)
         break
-      case 38: this.handleUpKey(evt)
-        break
-      case 40: this.handleDownKey(evt)
+      case 38:
+      case 40: this.handleArrowKeys(evt, evt.keyCode)
         break
       case 186: evt.shiftKey && this.handleColonKey(evt)
         break
@@ -277,40 +275,27 @@ class Dropdown extends Component {
 
   /**
    * for navigating the suggestions with keyboard arrows.
-   * this moves the selector up by one, and keeps it
-   * within the correct bounds.
+   * this moves the selector up/down by one, and keeps it
+   * within the correct bounds by wrapping it.
    */
-  handleUpKey (evt) {
+  handleArrowKeys (evt, keyCode) {
     evt.preventDefault()
 
-    // start from bottom of list if nothing is currently selected
-    const newIdx = this.state.selectedSuggestion !== null
-      ? this.state.selectedSuggestion - 1
-      : this.getSuggestions(true).length - 1
+    const { selectedSuggestion } = this.state
+    const isDownKey = keyCode === 40
 
-    this.setState({
-      // make sure it doesn't go out of bounds
-      selectedSuggestion: newIdx > 0 ? newIdx : 0
-    })
-  }
-
-  /**
-   * for navigating the suggestions with keyboard arrows.
-   * this moves the selector down by one, and keeps it
-   * within the correct bounds.
-   */
-  handleDownKey (evt) {
-    evt.preventDefault()
-
-    // start from top of list if nothing is currently selected
+    // the furthest down it can go before wrapping
     const max = this.getSuggestions(true).length - 1
-    const newIdx = this.state.selectedSuggestion !== null
-      ? this.state.selectedSuggestion + 1
-      : 0
+
+    const newIdx = selectedSuggestion !== null
+      ? isDownKey ? selectedSuggestion + 1 : selectedSuggestion - 1
+      : isDownKey ? 0 : max
 
     this.setState({
-      // make sure it doesn't go out of bounds
-      selectedSuggestion: newIdx < max ? newIdx : max
+      // make sure it doesn't go out of bounds by resetting to opposite side
+      selectedSuggestion: isDownKey
+        ? newIdx <= max ? newIdx : 0
+        : newIdx >= 0 ? newIdx : max
     })
   }
 
