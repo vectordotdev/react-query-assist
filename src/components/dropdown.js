@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
-// import { tokenRegex } from '../utils/regex'
+import { tokenRegex } from '../utils/regex'
 
 import {
   Container,
@@ -42,10 +42,7 @@ export default class extends PureComponent {
 
   componentDidMount () {
     document.addEventListener('keydown', this.keydown, false)
-
-    this.setState({
-      suggestions: this.getSuggestions()
-    })
+    this.filterSuggestions(this.props.value)
   }
 
   componentWillUnmount () {
@@ -54,28 +51,7 @@ export default class extends PureComponent {
 
   componentWillReceiveProps (nextProps) {
     if (this.props.value !== nextProps.value) {
-      // let value = nextProps.value
-      // let selectedIdx = -1
-      //
-      // const [
-      //   fullToken,
-      //   attributeName,
-      //   attributeValue
-      // ] = tokenRegex(true).exec(value) || []
-      //
-      // if (attributeName) {
-      //   value = attributeValue
-      //   selectedIdx = nextProps.attributes
-      //     .findIndex(({ name }) => name === attributeName)
-      // }
-
-      // this.setState({ selectedIdx }, () =>
-      this.setState({
-        suggestions: this.filterSuggestions(nextProps.value),
-        // reset selector to top each time value changes
-        highlightedIdx: 0
-      })
-      // )
+      this.filterSuggestions(nextProps.value)
     }
   }
 
@@ -133,9 +109,8 @@ export default class extends PureComponent {
     })
   }
 
-  getSuggestions () {
+  getSuggestions (selectedIdx) {
     const { attributes } = this.props
-    const { selectedIdx } = this.state
 
     return selectedIdx !== null && selectedIdx > -1
       ? attributes[selectedIdx].enumerations
@@ -143,10 +118,25 @@ export default class extends PureComponent {
   }
 
   filterSuggestions (value) {
-    const suggestions = this.getSuggestions()
+    const token = tokenRegex({ noAttr: true }).exec(value) || []
 
-    return suggestions.filter(v =>
-      new RegExp(escape(value), 'i').test(v))
+    const attributeName = token[1]
+    const attributeValue = token[2]
+    const attributeIdx = this.props.attributes
+      .findIndex(({ name }) => name === attributeName)
+
+    const selectedIdx = attributeIdx > -1 ? attributeIdx : -1
+    const searchValue = selectedIdx > -1 ? attributeValue : value
+
+    const suggestions = this.getSuggestions(selectedIdx)
+    const filtered = searchValue ? suggestions.filter(v =>
+      new RegExp(escape(searchValue), 'i').test(v)) : suggestions
+
+    this.setState({
+      suggestions: filtered,
+      // reset selector to top each time value changes
+      highlightedIdx: 0
+    })
   }
 
   acceptSuggestion () {
@@ -157,9 +147,13 @@ export default class extends PureComponent {
     } = this.state
 
     const suggestion = suggestions[highlightedIdx]
-    const appended = selectedIdx ? ' ' : ':'
+    const newValue = suggestion
+    // const newValue = selectedIdx
+    //   ? `${this.props.attributes[selectedIdx].name}:${suggestion}`
+    //   : suggestion
 
-    this.props.onSelect(`${suggestion}${appended}`)
+    const appended = selectedIdx ? ' ' : ':'
+    this.props.onSelect(`${newValue}${appended}`)
   }
 
   render () {

@@ -22,6 +22,7 @@ export const Container = styled.aside`
   font-family: -apple-system, sans-serif;
   min-width: 300px;
   position: absolute;
+  z-index: 10;
   transform-origin: 50% 0;
   animation: ${swingDown} ease-in-out 250ms;
   transition: all 100ms;

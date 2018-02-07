@@ -19,6 +19,16 @@ const Container = styled.div`
   padding: 20px;
 `
 
+const Title = styled.h2`
+  color: #FFFFFF;
+  margin-bottom: 15px;
+  font-weight: 600;
+`
+
+const Assist = styled(QueryAssist)`
+  margin-bottom: 50px;
+`
+
 class Demo extends Component {
   async getData () {
     await new Promise(resolve => setTimeout(resolve, 100))
@@ -55,12 +65,18 @@ class Demo extends Component {
   render () {
     return (
       <Container>
-        <QueryAssist
+        <Title>Basic Example</Title>
+        <Assist
+          placeholder='Search Logs ⌘ ⇧ F'
+          getData={this.getData}
+          onSubmit={query => console.log(`output query: ${query}`)} />
+
+        <Title>Complex Query Example</Title>
+        <Assist
           placeholder='Search Logs ⌘ ⇧ F'
           getData={this.getData}
           onSubmit={query => console.log(`output query: ${query}`)}
-          defaultValue={`keyword1 (level:error AND heroku.source:"foo bar") keyword2 http.method:POST\n\t(-level:info OR http_response.status:>=400)\nkeyword3 invalid:token heroku.dyno_id:abc*`}
-        />
+          defaultValue={`keyword1 (level:error AND heroku.source:"foo bar") keyword2 http.method:POST\n\t(-level:info OR http_response.status:>=400)\nkeyword3 invalid:token heroku.dyno_id:abc*`} />
       </Container>
     )
   }

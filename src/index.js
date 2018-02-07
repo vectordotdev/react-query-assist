@@ -90,8 +90,11 @@ export default class extends Component {
   }
 
   handleEnterKey (evt) {
+    // whether this input is infocus
+    const isFocused = document.activeElement === this._input
+
     // dropdown handles enter key, so prevent clash
-    if (this.state.dropdownOpen) {
+    if (!isFocused || this.state.dropdownOpen) {
       return
     }
 
@@ -105,7 +108,7 @@ export default class extends Component {
   onChange (evt) {
     this.setState({
       value: evt.target.value
-    })
+    }, this.onAutosuggest)
   }
 
   onSelect (evt) {
@@ -152,6 +155,8 @@ export default class extends Component {
     }, () => {
       // position caret at the end of the inserted value
       const position = index + chunk.length
+
+      this._input.focus()
       this._input.setSelectionRange(position, position)
     })
   }
@@ -176,7 +181,7 @@ export default class extends Component {
       /[^\s()]/.test(value.charAt(selectionStart - 1))
 
     // chunk is a partial attribute
-    const token = tokenRegex(true).exec(chunk)
+    const token = tokenRegex({ partial: true }).exec(chunk)
     const looksLikeAttribute = token && attributes.findIndex(({ name }) =>
         new RegExp(escape(token[1])).test(name)) > -1
 
@@ -199,6 +204,7 @@ export default class extends Component {
 
   onClickToken (start, end) {
     // move cursor to end of token
+    this._input.focus()
     this._input.setSelectionRange(end, end)
   }
 
@@ -321,7 +327,8 @@ export default class extends Component {
 
   render () {
     return (
-      <Container>
+      <Container
+        className={this.props.className}>
         <InputContainer>
           <Overlay>
             {this.state.overlayComponents}

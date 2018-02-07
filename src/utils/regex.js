@@ -1,10 +1,10 @@
-export function tokenRegex (partial) {
+export function tokenRegex (opts = {}) {
   return new RegExp(
     `-?` + // dont include negation in selector but allow it
     `([\\w.]+)` + // the attribute name
-    `:${partial ? '?' : ''}` + // assume it's a token when there's no colon
+    `:${opts.partial ? '?' : ''}` + // assume it's a token when there's no colon
     `(".+?"|[^\\s():]+)` + // the attribute value
-    `${partial ? '?' : ''}`, // whether attribute value can be empty
+    `${opts.noAttr || opts.partial ? '?' : ''}`, // whether attribute value can be empty
     'g'
   )
 }
