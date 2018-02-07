@@ -41,6 +41,7 @@
   "dependencies": {
     "escape-string-regexp": "^1.0.5",
     "prop-types": "^15.6.0",
+    "react-page-click": "^4.0.2",
     "react-textarea-autosize": "^5.2.1",
     "styled-components": "^3.1.6"
   },

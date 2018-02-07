@@ -8,12 +8,15 @@
 
 - [ ] Fix autofilling issues when selecting an autosuggested value
 - [ ] Dropdown doesn't reopen when selecting a suggested value
-- [ ] Clicking on token doesn't always open dropdown
 - [ ] Selecting value from dropdown should insert space and reopen dropdown
 - [ ] Reimplement operator functionality
 - [ ] Only show <, >, <=, >= operators for numeric fields
 - [ ] Only show suggestion for quoted value when attribute is string type
 - [ ] Only show wildcard suggestion for string types
+- [ ] Strip out Timber styling and allow custom components/styling
+- [ ] Write some tests
+- [ ] Write out some basic documentation on how to use
+- [ ] Publish to NPM
 
 ## API Mock
 

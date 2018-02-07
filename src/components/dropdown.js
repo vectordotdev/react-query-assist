@@ -17,8 +17,6 @@ export default class extends PureComponent {
     value: PropTypes.string,
     attributes: PropTypes.array,
     onSelect: PropTypes.func,
-    onFocus: PropTypes.func,
-    onBlur: PropTypes.func,
     onClose: PropTypes.func,
     offsetX: PropTypes.number,
     offsetY: PropTypes.number
@@ -165,9 +163,6 @@ export default class extends PureComponent {
 
     return (
       <Container
-        tabIndex='0'
-        onFocus={this.props.onFocus}
-        onBlur={this.props.onBlur}
         style={style}>
         <Suggestions>
           {this.state.suggestions.map((suggestion, key) =>

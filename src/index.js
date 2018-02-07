@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import PageClick from 'react-page-click'
 import escape from 'escape-string-regexp'
 import { tokenRegex } from './utils/regex'
 import Dropdown from './components/dropdown'
@@ -31,7 +32,6 @@ export default class extends Component {
     this.onSelectValue = this.onSelectValue.bind(this)
     this.shouldAutosuggest = this.shouldAutosuggest.bind(this)
     this.onClose = this.onClose.bind(this)
-    this.onCloseCancel = this.onCloseCancel.bind(this)
     this.onClickToken = this.onClickToken.bind(this)
     this.getCurrentChunk = this.getCurrentChunk.bind(this)
     this.extractTokens = this.extractTokens.bind(this)
@@ -124,7 +124,6 @@ export default class extends Component {
 
     const { chunk } = this.getCurrentChunk(value)
     const suggest = this.shouldAutosuggest(chunk)
-    console.log(suggest)
 
     if (suggest) {
       this.setState({
@@ -187,16 +186,9 @@ export default class extends Component {
   }
 
   onClose () {
-    // hack to prevent the dropdown from closing when it is clicked
-    this._closing = setTimeout(() => {
-      this.setState({
-        dropdownOpen: false
-      })
-    }, 10)
-  }
-
-  onCloseCancel () {
-    clearTimeout(this._closing)
+    this.setState({
+      dropdownOpen: false
+    })
   }
 
   onClickToken (start, end) {
@@ -324,37 +316,38 @@ export default class extends Component {
 
   render () {
     return (
-      <Container
-        className={this.props.className}>
-        <InputContainer>
-          <Overlay>
-            {this.state.overlayComponents}
-          </Overlay>
+      <PageClick
+        outsideOnly
+        notify={this.onClose}>
+        <Container
+          className={this.props.className}>
+          <InputContainer>
+            <Overlay>
+              {this.state.overlayComponents}
+            </Overlay>
 
-          <Input
-            autoComplete='off'
-            autoCorrect='off'
-            autoCapitalize='off'
-            spellCheck='false'
-            placeholder={this.props.placeholder || 'Search'}
-            value={this.state.value}
-            onChange={this.onChange}
-            onSelect={this.onSelect}
-            onBlur={this.onClose}
-            inputRef={ref => (this._input = ref)} />
-        </InputContainer>
+            <Input
+              autoComplete='off'
+              autoCorrect='off'
+              autoCapitalize='off'
+              spellCheck='false'
+              placeholder={this.props.placeholder || 'Search'}
+              value={this.state.value}
+              onChange={this.onChange}
+              onSelect={this.onSelect}
+              inputRef={ref => (this._input = ref)} />
+          </InputContainer>
 
-        {this.state.dropdownOpen && !this.state.loading &&
-          <Dropdown
-            attributes={this.state.attributes}
-            value={this.state.dropdownValue}
-            onSelect={this.onSelectValue}
-            onClose={this.onClose}
-            onFocus={this.onCloseCancel}
-            onBlur={this.onClose}
-            offsetX={this.state.dropdownX}
-            offsetY={this.state.dropdownY} />}
-      </Container>
+          {this.state.dropdownOpen && !this.state.loading &&
+            <Dropdown
+              attributes={this.state.attributes}
+              value={this.state.dropdownValue}
+              onSelect={this.onSelectValue}
+              onClose={this.onClose}
+              offsetX={this.state.dropdownX}
+              offsetY={this.state.dropdownY} />}
+        </Container>
+      </PageClick>
     )
   }
 }
