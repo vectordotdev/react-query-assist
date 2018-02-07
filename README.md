@@ -6,11 +6,14 @@
 
 ## Todo
 
-- [ ] Sort suggestions and highlight closest match
+- [ ] Fix autofilling issues when selecting an autosuggested value
+- [ ] Dropdown doesn't reopen when selecting a suggested value
+- [ ] Clicking on token doesn't always open dropdown
 - [ ] Selecting value from dropdown should insert space and reopen dropdown
+- [ ] Reimplement operator functionality
 - [ ] Only show <, >, <=, >= operators for numeric fields
-- [ ] Only show wildcard suggestion for strings
-- [ ] Only suggestion quoted when a string
+- [ ] Only show suggestion for quoted value when attribute is string type
+- [ ] Only show wildcard suggestion for string types
 
 ## API Mock
 
