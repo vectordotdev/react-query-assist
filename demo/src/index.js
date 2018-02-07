@@ -8,6 +8,7 @@ injectGlobal`
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: -apple-system, sans-serif;
   }
 `
 
@@ -19,49 +20,45 @@ const Container = styled.div`
 `
 
 class Demo extends Component {
-  async getAttributes () {
+  async getData () {
     await new Promise(resolve => setTimeout(resolve, 100))
 
     return [
-      'level',
-      'http.method',
-      'http_response.status',
-      'heroku.dyno_id',
-      'heroku.source'
+      {
+        name: 'level',
+        type: 'string',
+        enumerations: ['info', 'error', 'warn', 'debug', 'critical']
+      },
+      {
+        name: 'http.method',
+        type: 'string',
+        enumerations: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+      },
+      {
+        name: 'http_response.status',
+        type: 'int',
+        enumerations: [200, 400, 404, 500]
+      },
+      {
+        name: 'heroku.dyno_id',
+        type: 'string',
+        enumerations: []
+      },
+      {
+        name: 'heroku.source',
+        type: 'string',
+        enumerations: null
+      }
     ]
-  }
-
-  async getValues (attr) {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    if (attr === 'level') {
-      return [
-        'info',
-        'error',
-        'warn',
-        'debug',
-        'critical'
-      ]
-    }
-
-    if (attr === 'http.method') {
-      return [
-        'GET',
-        'POST',
-        'PUT',
-        'PATCH',
-        'DELETE'
-      ]
-    }
   }
 
   render () {
     return (
       <Container>
         <QueryAssist
-          getAttributes={this.getAttributes}
-          getValues={this.getValues}
-          onQuery={query => console.log(query)} />
+          placeholder='Search Logs ⌘ ⇧ F'
+          getData={this.getData}
+          onSubmit={query => console.log(`output query: ${query}`)} />
       </Container>
     )
   }
