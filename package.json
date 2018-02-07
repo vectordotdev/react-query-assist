@@ -20,8 +20,8 @@
   "scripts": {
     "build": "nwb build-react-component",
     "clean": "nwb clean-module && nwb clean-demo",
-    "test:unit": "nwb test-react --coverage",
     "test:lint": "standard --verbose | snazzy",
+    "test:unit": "nwb test-react",
     "test": "npm-run-all test:*",
     "start:test": "nwb test-react --server",
     "start": "nwb serve-react-demo"

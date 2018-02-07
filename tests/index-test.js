@@ -3,6 +3,12 @@ import expect from 'expect'
 import { render, unmountComponentAtNode } from 'react-dom'
 import Component from '../src'
 
+describe('initial', () => {
+  it('runs initial test', () => {
+    expect(1 + 1).toEqual(2)
+  })
+})
+
 describe.skip('Component', () => {
   let node
 
