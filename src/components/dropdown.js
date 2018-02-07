@@ -56,9 +56,9 @@ export default class extends PureComponent {
   }
 
   componentDidUpdate () {
-    if (this.state.suggestions.length === 0) {
-      this.props.onClose()
-    }
+    // if (this.state.suggestions.length === 0) {
+    //   this.props.onClose()
+    // }
   }
 
   keydown (evt) {
@@ -119,18 +119,19 @@ export default class extends PureComponent {
 
   filterSuggestions (value) {
     const token = tokenRegex({ noAttr: true }).exec(value) || []
+    console.log(token)
 
-    const attributeName = token[1]
-    const attributeValue = token[2]
-    const attributeIdx = this.props.attributes
-      .findIndex(({ name }) => name === attributeName)
+    // const attributeName = token[2]
+    // const attributeValue = token[4]
+    // const attributeIdx = this.props.attributes
+    //   .findIndex(({ name }) => name === attributeName)
+    //
+    // const selectedIdx = attributeIdx > -1 ? attributeIdx : -1
+    // const searchValue = selectedIdx > -1 ? attributeValue : value
 
-    const selectedIdx = attributeIdx > -1 ? attributeIdx : -1
-    const searchValue = selectedIdx > -1 ? attributeValue : value
-
-    const suggestions = this.getSuggestions(selectedIdx)
-    const filtered = searchValue ? suggestions.filter(v =>
-      new RegExp(escape(searchValue), 'i').test(v)) : suggestions
+    const suggestions = this.getSuggestions()
+    const filtered = suggestions.filter(v =>
+      new RegExp(escape(value), 'i').test(v))
 
     this.setState({
       suggestions: filtered,

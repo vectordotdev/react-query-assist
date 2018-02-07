@@ -124,6 +124,7 @@ export default class extends Component {
 
     const { chunk } = this.getCurrentChunk(value)
     const suggest = this.shouldAutosuggest(chunk)
+    console.log(suggest)
 
     if (suggest) {
       this.setState({
@@ -164,9 +165,9 @@ export default class extends Component {
       attributes
     } = this.state
 
-    // next character is whitespace or null
+    // next character is whitespace, closing paren or null
     const nextCharIsEmpty = !value.charAt(selectionStart) ||
-      /\s/.test(value.charAt(selectionStart))
+      /[\s)]/.test(value.charAt(selectionStart))
 
     // whitespace before and after caret
     const isNewWord = nextCharIsEmpty &&
