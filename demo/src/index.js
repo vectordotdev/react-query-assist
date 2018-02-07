@@ -58,7 +58,9 @@ class Demo extends Component {
         <QueryAssist
           placeholder='Search Logs ⌘ ⇧ F'
           getData={this.getData}
-          onSubmit={query => console.log(`output query: ${query}`)} />
+          onSubmit={query => console.log(`output query: ${query}`)}
+          // defaultValue={`keyword1 (level:error AND heroku.source:"foo bar") keyword2 http.method:POST\n\t(-level:info OR http_response.status:>=400)\nkeyword3 invalid:token heroku.dyno_id:a*`}
+        />
       </Container>
     )
   }

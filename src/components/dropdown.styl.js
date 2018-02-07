@@ -44,7 +44,7 @@ export const Suggestions = styled.ul`
 
 export const Suggestion = styled.li`
   background: ${props => props.active ? '#6554AF' : 'none'};
-  padding: 2px 15px;
+  padding: 3px 15px;
   cursor: pointer;
 `
 

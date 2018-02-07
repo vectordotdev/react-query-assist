@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import escape from 'escape-string-regexp'
 import Dropdown from './components/dropdown'
 
 import {
@@ -22,19 +23,22 @@ export default class extends Component {
   constructor (props) {
     super(props)
     this.keydown = this.keydown.bind(this)
+    this.handleEnterKey = this.handleEnterKey.bind(this)
     this.onChange = this.onChange.bind(this)
     this.onSelect = this.onSelect.bind(this)
     this.onAutosuggest = this.onAutosuggest.bind(this)
     this.onSelectValue = this.onSelectValue.bind(this)
-    this.onClickToken = this.onClickToken.bind(this)
+    this.shouldAutosuggest = this.shouldAutosuggest.bind(this)
     this.onClose = this.onClose.bind(this)
     this.onCloseCancel = this.onCloseCancel.bind(this)
+    this.onClickToken = this.onClickToken.bind(this)
     this.getCurrentChunk = this.getCurrentChunk.bind(this)
+    this.tokenRegex = this.tokenRegex.bind(this)
     this.extractTokens = this.extractTokens.bind(this)
     this.buildOverlay = this.buildOverlay.bind(this)
     this.state = {
+      loading: true,
       value: props.defaultValue || '',
-      // value: 'keyword1 (level:error AND something:"foo bar") keyword2 http.method:POST\n\thello level:info',
       attributes: [],
       overlayComponents: [],
       dropdownOpen: false,
@@ -50,7 +54,7 @@ export default class extends Component {
     try {
       this.setState({
         attributes: await this.props.getData(),
-        overlayComponents: this.buildOverlay(this.state.value)
+        loading: false
       })
     } catch (err) {
       console.error('Error while getting data:', err)
@@ -61,7 +65,36 @@ export default class extends Component {
     document.removeEventListener('keydown', this.keydown, false)
   }
 
+  componentDidUpdate (prevProps, prevState) {
+    const {
+      value,
+      attributes
+    } = this.state
+
+    if (
+      value !== prevState.value ||
+      attributes.length !== prevState.attributes.length
+    ) {
+      this.setState({
+        overlayComponents: this.buildOverlay(value)
+      })
+    }
+  }
+
   keydown (evt) {
+    switch (evt.keyCode) {
+      case 13: // enter key
+        this.handleEnterKey(evt)
+        break
+    }
+  }
+
+  handleEnterKey (evt) {
+    // dropdown handles enter key, so prevent clash
+    if (this.state.dropdownOpen) {
+      return
+    }
+
     // submit on enter, line break on shift enter
     if (!evt.shiftKey && evt.keyCode === 13) {
       evt.preventDefault()
@@ -84,26 +117,21 @@ export default class extends Component {
   }
 
   onAutosuggest () {
-    const {
-      value
-    } = this.state
-
+    const { value } = this.state
     const {
       offsetLeft,
       offsetTop
     } = this._marker
 
-    const {
-      chunk,
-      shouldSuggest
-    } = this.getCurrentChunk(value)
+    const { chunk } = this.getCurrentChunk(value)
+    const suggest = this.shouldAutosuggest(chunk)
 
-    if (shouldSuggest) {
+    if (suggest) {
       this.setState({
         dropdownOpen: true,
         dropdownValue: chunk,
         dropdownX: offsetLeft,
-        dropdownY: offsetTop + 25 // line-height + 5 extra padding
+        dropdownY: offsetTop + 25 // line height + 5 extra padding
       })
     } else {
       this.setState({
@@ -112,7 +140,7 @@ export default class extends Component {
     }
   }
 
-  onSelectValue (newValue) {
+  onSelectValue (chunk) {
     const { value } = this.state
     const {
       index,
@@ -120,13 +148,39 @@ export default class extends Component {
     } = this.getCurrentChunk(value)
 
     this.setState({
-      value: `${value.slice(0, index)}${newValue}${value.slice(indexEnd)}`
+      value: `${value.slice(0, index)}${chunk}${value.slice(indexEnd)}`
+    }, () => {
+      // position caret at the end of the inserted value
+      const position = index + chunk.length
+      this._input.setSelectionRange(position, position)
     })
   }
 
-  onClickToken (position) {
-    // moves caret to the beginning of the token
-    this._input.setSelectionRange(position, position)
+  shouldAutosuggest (chunk) {
+    const { selectionStart } = this._input
+    const {
+      value,
+      attributes
+    } = this.state
+
+    // next character is whitespace or null
+    const nextCharIsEmpty = !value.charAt(selectionStart) ||
+      /\s/.test(value.charAt(selectionStart))
+
+    // whitespace before and after caret
+    const isNewWord = nextCharIsEmpty &&
+      /\s/.test(value.charAt(selectionStart - 1))
+
+    // cursor is at end of the current word
+    const atEndOfWord = nextCharIsEmpty &&
+      /[^\s()]/.test(value.charAt(selectionStart - 1))
+
+    // chunk is a partial attribute
+    const looksLikeAttribute = attributes.findIndex(({ name }) =>
+        new RegExp(escape(chunk)).test(name)) > -1
+
+    return !value || isNewWord ||
+      (atEndOfWord && looksLikeAttribute)
   }
 
   onClose () {
@@ -142,6 +196,11 @@ export default class extends Component {
     clearTimeout(this._closing)
   }
 
+  onClickToken (start, end) {
+    // move cursor to end of token
+    this._input.setSelectionRange(end, end)
+  }
+
   getCurrentChunk (value) {
     const {
       selectionStart
@@ -153,9 +212,7 @@ export default class extends Component {
     // find index of the closest previous whitespace
     const prevStr = value.substring(0, selectionStart)
     const prevMatch = prevStr.match(/[^\s]*$/)
-    const prevIdx = prevMatch
-      ? prevStr.lastIndexOf(prevMatch[prevMatch.length - 1])
-      : -1
+    const prevIdx = prevMatch ? prevStr.lastIndexOf(prevMatch[prevMatch.length - 1]) : -1
 
     // determine correct index for the start of the chunk
     let index = prevIdx
@@ -177,29 +234,40 @@ export default class extends Component {
       }
     }
 
-    // extract value of current chunk
+    // value is result of cursor back to beginning of chunk
     const chunk = value.substring(index, selectionStart)
-    // calculate the location where the chunk ends
     const indexEnd = index + chunk.length
-
-    // whether the chunk should open the autocomplete dropdown
-    const shouldSuggest = true // TODO
 
     return {
       index,
       indexEnd,
-      chunk,
-      shouldSuggest
+      chunk
     }
+  }
+
+  tokenRegex (partial) {
+    return new RegExp(
+      `-?` + // dont include negation in selector but allow it
+      `([\\w.]+)` + // the attribute name
+      `:${partial ? '?' : ''}` + // assume it's a token when there's no colon
+      `(".+?"|[^\\s():]+)` + // the attribute value
+      `${partial ? '?' : ''}`, // whether attribute value can be empty
+      'g'
+    )
   }
 
   extractTokens (value) {
     const positions = []
-    const regex = /([\w.-]+):(".+?"|[^\s():]+)/g
+    const regex = this.tokenRegex()
 
     let result
     while ((result = regex.exec(value)) !== null) {
-      // TODO: validate against actual list of tokens
+      const isValidAttribute = this.state.attributes
+        .findIndex(({ name }) => result[1] === name) > -1
+
+      if (!isValidAttribute) {
+        continue
+      }
 
       const startPosition = result.index
       const endPosition = regex.lastIndex
@@ -216,13 +284,14 @@ export default class extends Component {
 
     let currentPosition = 0
     positions.reduce((prev, next) => {
-      const locationInInput = next[1] + relativeToIdx
+      const startIdx = next[0] + relativeToIdx
+      const endIdx = next[1] + relativeToIdx
 
       chunks.push(value.substring(prev[1], next[0]))
       chunks.push(
         <Token
           key={`token-${next[0]}`}
-          onClick={() => this.onClickToken(locationInInput)}>
+          onClick={() => this.onClickToken(startIdx, endIdx)}>
           {value.substring(next[0], next[1])}
         </Token>
       )
@@ -247,8 +316,8 @@ export default class extends Component {
     // need to have default whitespace or dropdown will not find position of caret
     const stuffOnRight = this.buildTokens(value.substring(index) || ' ', index)
 
-    // since it will never split up a tokens,
-    // we can build the tokens independently on each side
+    // since it will never split up a token,
+    // we can build each side of cursor independently
     return [
       stuffOnLeft,
       <Inline
@@ -281,7 +350,7 @@ export default class extends Component {
             inputRef={ref => (this._input = ref)} />
         </InputContainer>
 
-        {this.state.dropdownOpen &&
+        {this.state.dropdownOpen && !this.state.loading &&
           <Dropdown
             attributes={this.state.attributes}
             value={this.state.dropdownValue}

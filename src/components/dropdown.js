@@ -41,6 +41,10 @@ export default class extends PureComponent {
 
   componentDidMount () {
     document.addEventListener('keydown', this.keydown, false)
+
+    this.setState({
+      suggestions: this.getSuggestions()
+    })
   }
 
   componentWillUnmount () {
@@ -49,29 +53,21 @@ export default class extends PureComponent {
 
   componentWillReceiveProps (nextProps) {
     const {
-      value,
-      attributes
+      value
     } = nextProps
 
-    if (this.props.attributes !== attributes) {
+    if (this.props.value !== value) {
       this.setState({
-        suggestions: this.getSuggestions(attributes)
+        suggestions: this.filterSuggestions(value),
+        // reset selector to top each time value changes
+        highlightedIdx: 0
       })
     }
+  }
 
-    if (this.props.value !== value) {
-      const tokenRegex = /([\w.-]+):(".+?"|[^\s():]+)?/
-      const result = tokenRegex.exec(value)
-      const newValue = result ? result[2] : value
-      const selectedIdx = result
-        ? attributes.findIndex(v => v.name === result[1])
-        : null
-
-      this.setState({ selectedIdx }, () =>
-        this.setState({
-          highlightedIdx: 0,
-          suggestions: this.filterSuggestions(newValue, attributes)
-        }))
+  componentDidUpdate () {
+    if (this.state.suggestions.length === 0) {
+      this.props.onClose()
     }
   }
 
@@ -123,25 +119,26 @@ export default class extends PureComponent {
     })
   }
 
-  getSuggestions (attributes) {
+  getSuggestions () {
+    const { attributes } = this.props
     const { selectedIdx } = this.state
 
-    return selectedIdx !== null && selectedIdx >= 0
+    return selectedIdx !== null && selectedIdx > -1
       ? attributes[selectedIdx].enumerations
       : attributes.map(({ name }) => name)
-  }
-
-  filterSuggestions (value, attributes) {
-    return this.getSuggestions(attributes)
-      // .filter(v => new RegExp(escape(value), 'i').test(v))
   }
 
   acceptSuggestion () {
     const idx = this.state.highlightedIdx
     const suggestion = this.state.suggestions[idx]
-    const append = this.state.selectedIdx ? '' : ':'
+    const append = ' '
 
     this.props.onSelect(`${suggestion}${append}`)
+  }
+
+  filterSuggestions (value) {
+    return this.getSuggestions()
+      .filter(v => new RegExp(escape(value), 'i').test(v))
   }
 
   render () {
@@ -156,8 +153,6 @@ export default class extends PureComponent {
         onFocus={this.props.onFocus}
         onBlur={this.props.onBlur}
         style={style}>
-        {this.props.value}
-
         <Suggestions>
           {this.state.suggestions.map((suggestion, key) =>
             <Suggestion
