@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import escape from 'escape-string-regexp'
+import { tokenRegex } from './utils/regex'
 import Dropdown from './components/dropdown'
 
 import {
@@ -33,7 +34,6 @@ export default class extends Component {
     this.onCloseCancel = this.onCloseCancel.bind(this)
     this.onClickToken = this.onClickToken.bind(this)
     this.getCurrentChunk = this.getCurrentChunk.bind(this)
-    this.tokenRegex = this.tokenRegex.bind(this)
     this.extractTokens = this.extractTokens.bind(this)
     this.buildOverlay = this.buildOverlay.bind(this)
     this.state = {
@@ -176,8 +176,9 @@ export default class extends Component {
       /[^\s()]/.test(value.charAt(selectionStart - 1))
 
     // chunk is a partial attribute
-    const looksLikeAttribute = attributes.findIndex(({ name }) =>
-        new RegExp(escape(chunk)).test(name)) > -1
+    const token = tokenRegex(true).exec(chunk)
+    const looksLikeAttribute = token && attributes.findIndex(({ name }) =>
+        new RegExp(escape(token[1])).test(name)) > -1
 
     return !value || isNewWord ||
       (atEndOfWord && looksLikeAttribute)
@@ -245,20 +246,9 @@ export default class extends Component {
     }
   }
 
-  tokenRegex (partial) {
-    return new RegExp(
-      `-?` + // dont include negation in selector but allow it
-      `([\\w.]+)` + // the attribute name
-      `:${partial ? '?' : ''}` + // assume it's a token when there's no colon
-      `(".+?"|[^\\s():]+)` + // the attribute value
-      `${partial ? '?' : ''}`, // whether attribute value can be empty
-      'g'
-    )
-  }
-
   extractTokens (value) {
     const positions = []
-    const regex = this.tokenRegex()
+    const regex = tokenRegex()
 
     let result
     while ((result = regex.exec(value)) !== null) {

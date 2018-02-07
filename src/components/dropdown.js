@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
+// import { tokenRegex } from '../utils/regex'
 
 import {
   Container,
@@ -52,16 +53,29 @@ export default class extends PureComponent {
   }
 
   componentWillReceiveProps (nextProps) {
-    const {
-      value
-    } = nextProps
+    if (this.props.value !== nextProps.value) {
+      // let value = nextProps.value
+      // let selectedIdx = -1
+      //
+      // const [
+      //   fullToken,
+      //   attributeName,
+      //   attributeValue
+      // ] = tokenRegex(true).exec(value) || []
+      //
+      // if (attributeName) {
+      //   value = attributeValue
+      //   selectedIdx = nextProps.attributes
+      //     .findIndex(({ name }) => name === attributeName)
+      // }
 
-    if (this.props.value !== value) {
+      // this.setState({ selectedIdx }, () =>
       this.setState({
-        suggestions: this.filterSuggestions(value),
+        suggestions: this.filterSuggestions(nextProps.value),
         // reset selector to top each time value changes
         highlightedIdx: 0
       })
+      // )
     }
   }
 
@@ -128,17 +142,24 @@ export default class extends PureComponent {
       : attributes.map(({ name }) => name)
   }
 
-  acceptSuggestion () {
-    const idx = this.state.highlightedIdx
-    const suggestion = this.state.suggestions[idx]
-    const append = ' '
+  filterSuggestions (value) {
+    const suggestions = this.getSuggestions()
 
-    this.props.onSelect(`${suggestion}${append}`)
+    return suggestions.filter(v =>
+      new RegExp(escape(value), 'i').test(v))
   }
 
-  filterSuggestions (value) {
-    return this.getSuggestions()
-      .filter(v => new RegExp(escape(value), 'i').test(v))
+  acceptSuggestion () {
+    const {
+      suggestions,
+      highlightedIdx,
+      selectedIdx
+    } = this.state
+
+    const suggestion = suggestions[highlightedIdx]
+    const appended = selectedIdx ? ' ' : ':'
+
+    this.props.onSelect(`${suggestion}${appended}`)
   }
 
   render () {
