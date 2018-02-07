@@ -93,13 +93,9 @@ export default class extends Component {
     // whether this input is infocus
     const isFocused = document.activeElement === this._input
 
-    // dropdown handles enter key, so prevent clash
-    if (!isFocused || this.state.dropdownOpen) {
-      return
-    }
-
     // submit on enter, line break on shift enter
-    if (!evt.shiftKey && evt.keyCode === 13) {
+    // dropdown handles enter key as well, so prevent clash
+    if (!evt.shiftKey && isFocused && !this.state.dropdownOpen) {
       evt.preventDefault()
       this.props.onSubmit(this.state.value)
     }
@@ -183,7 +179,7 @@ export default class extends Component {
     // chunk is a partial attribute
     const token = tokenRegex({ partial: true }).exec(chunk)
     const looksLikeAttribute = token && attributes.findIndex(({ name }) =>
-        new RegExp(escape(token[1])).test(name)) > -1
+        new RegExp(escape(token[2])).test(name)) > -1
 
     return !value || isNewWord ||
       (atEndOfWord && looksLikeAttribute)
@@ -259,7 +255,7 @@ export default class extends Component {
     let result
     while ((result = regex.exec(value)) !== null) {
       const isValidAttribute = this.state.attributes
-        .findIndex(({ name }) => result[1] === name) > -1
+        .findIndex(({ name }) => result[2] === name) > -1
 
       if (!isValidAttribute) {
         continue
