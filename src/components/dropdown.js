@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
-import { tokenRegex } from '../utils/regex'
+import { parseToken } from '../utils/token'
 
 import {
   Container,
@@ -32,6 +32,7 @@ export default class extends PureComponent {
     this.filterSuggestions = this.filterSuggestions.bind(this)
     this.acceptSuggestion = this.acceptSuggestion.bind(this)
     this.state = {
+      attribute: null,
       suggestions: [],
       highlightedIdx: 0,
       selectedIdx: null
@@ -54,9 +55,9 @@ export default class extends PureComponent {
   }
 
   componentDidUpdate () {
-    // if (this.state.suggestions.length === 0) {
-    //   this.props.onClose()
-    // }
+    if (this.state.suggestions.length === 0) {
+      this.props.onClose()
+    }
   }
 
   keydown (evt) {
@@ -111,27 +112,23 @@ export default class extends PureComponent {
     const { attributes } = this.props
 
     return selectedIdx !== null && selectedIdx > -1
-      ? attributes[selectedIdx].enumerations
+      ? attributes[selectedIdx].enumerations || []
       : attributes.map(({ name }) => name)
   }
 
   filterSuggestions (value) {
-    const token = tokenRegex({ noAttr: true }).exec(value) || []
-    console.log(token)
+    const token = parseToken(value, { noAttr: true })
+    const selectedIdx = token ? this.props.attributes
+      .findIndex(({ name }) => name === token.attributeName) : -1
 
-    // const attributeName = token[2]
-    // const attributeValue = token[4]
-    // const attributeIdx = this.props.attributes
-    //   .findIndex(({ name }) => name === attributeName)
-    //
-    // const selectedIdx = attributeIdx > -1 ? attributeIdx : -1
-    // const searchValue = selectedIdx > -1 ? attributeValue : value
+    const suggestions = this.getSuggestions(selectedIdx)
+    const searchValue = selectedIdx > -1 ? token.attributeValue : value
 
-    const suggestions = this.getSuggestions()
     const filtered = suggestions.filter(v =>
-      new RegExp(escape(value), 'i').test(v))
+      new RegExp(escape(searchValue || ''), 'i').test(v))
 
     this.setState({
+      selectedIdx,
       suggestions: filtered,
       // reset selector to top each time value changes
       highlightedIdx: 0
@@ -139,6 +136,7 @@ export default class extends PureComponent {
   }
 
   acceptSuggestion () {
+    const { attributes } = this.props
     const {
       suggestions,
       highlightedIdx,
@@ -146,12 +144,11 @@ export default class extends PureComponent {
     } = this.state
 
     const suggestion = suggestions[highlightedIdx]
-    const newValue = suggestion
-    // const newValue = selectedIdx
-    //   ? `${this.props.attributes[selectedIdx].name}:${suggestion}`
-    //   : suggestion
+    const newValue = selectedIdx > -1
+      ? `${attributes[selectedIdx].name}:${suggestion}`
+      : suggestion
 
-    const appended = selectedIdx ? ' ' : ':'
+    const appended = selectedIdx > -1 ? ' ' : ':'
     this.props.onSelect(`${newValue}${appended}`)
   }
 
@@ -174,6 +171,22 @@ export default class extends PureComponent {
               {suggestion}
             </Suggestion>)}
         </Suggestions>
+
+        {/* {this.state.suggestions.length < 1 &&
+          (this.state.value
+            ? <Note>No results were found for "{this.state.value}"</Note>
+            : <Note>Continue typing for suggestions...</Note>)} */}
+
+        {/* <Section>
+          {this.getRelatedOperators().map((operator, key) =>
+            <Operator
+              key={key}
+              active={this.state.operator === operator.char}
+              onClick={() => this.setOperator(operator.char)}>
+              <Key>{operator.char}</Key>
+              {operator.name}
+            </Operator>)}
+        </Section> */}
 
         <Section center>
           <Helper>

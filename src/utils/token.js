@@ -1,9 +1,4 @@
 export function tokenRegex (opts = {}) {
-  // selector $1 === negation
-  // selector $2 === attribute name
-  // selector $3 === operator
-  // selector $4 === attribute value
-
   return new RegExp(
     `(-)?` + // watch for possible negation
     `([\\w.]+)` + // the attribute name
@@ -13,4 +8,18 @@ export function tokenRegex (opts = {}) {
     `${opts.noAttr || opts.partial ? '?' : ''}`, // whether attribute value can be empty
     'g'
   )
+}
+
+export function parseToken (value, opts = {}) {
+  const results = tokenRegex(opts).exec(value)
+
+  if (results) {
+    return {
+      fullToken: results[0],
+      negation: Boolean(results[1]),
+      attributeName: results[2],
+      operator: results[3],
+      attributeValue: results[4]
+    }
+  }
 }

@@ -6,9 +6,6 @@
 
 ## Todo
 
-- [ ] Fix autofilling issues when selecting an autosuggested value
-- [ ] Dropdown doesn't reopen when selecting a suggested value
-- [ ] Selecting value from dropdown should insert space and reopen dropdown
 - [ ] Reimplement operator functionality
 - [ ] Only show <, >, <=, >= operators for numeric fields
 - [ ] Only show suggestion for quoted value when attribute is string type

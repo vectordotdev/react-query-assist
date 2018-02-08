@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import PageClick from 'react-page-click'
 import escape from 'escape-string-regexp'
-import { tokenRegex } from './utils/regex'
+import { parseToken, tokenRegex } from './utils/token'
 import Dropdown from './components/dropdown'
 
 import {
@@ -177,9 +177,9 @@ export default class extends Component {
       /[^\s()]/.test(value.charAt(selectionStart - 1))
 
     // chunk is a partial attribute
-    const token = tokenRegex({ partial: true }).exec(chunk)
+    const token = parseToken(chunk, { partial: true })
     const looksLikeAttribute = token && attributes.findIndex(({ name }) =>
-        new RegExp(escape(token[2])).test(name)) > -1
+        new RegExp(escape(token.attributeName)).test(name)) > -1
 
     return !value || isNewWord ||
       (atEndOfWord && looksLikeAttribute)
