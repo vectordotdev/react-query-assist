@@ -1,7 +1,8 @@
 export function tokenRegex (opts = {}) {
   return new RegExp(
-    `(-)?` + // watch for possible negation
+    `([\\(|-]+)?` + // capture prepended character, negation or paren
     `([\\w.]+)` + // the attribute name
+    `${opts.partial ? '?' : ''}` + // assume it's a token, even with no attribute
     `:${opts.partial ? '?' : ''}` + // assume it's a token, even with no colon
     `([><=]*)` + // the operators
     `(".*?"|[^\\s():]*)` + // the attribute value
@@ -13,13 +14,12 @@ export function tokenRegex (opts = {}) {
 export function parseToken (value, opts = {}) {
   const results = tokenRegex(opts).exec(value)
 
-  if (results) {
-    return {
-      fullToken: results[0],
-      negation: Boolean(results[1]),
-      attributeName: results[2],
-      operator: results[3],
-      attributeValue: results[4]
-    }
-  }
+  return results ? {
+    fullToken: results[0],
+    attributeName: results[2],
+    attributeValue: results[4],
+    prepended: results[1] || '',
+    operator: results[3],
+    negated: results[0].indexOf('-') > -1
+  } : {}
 }

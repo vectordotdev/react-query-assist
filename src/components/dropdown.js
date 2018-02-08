@@ -35,7 +35,10 @@ export default class extends PureComponent {
       attribute: null,
       suggestions: [],
       highlightedIdx: 0,
-      selectedIdx: null
+      selectedIdx: null,
+      prepended: '',
+      operator: '',
+      negated: false
     }
   }
 
@@ -117,20 +120,30 @@ export default class extends PureComponent {
   }
 
   filterSuggestions (value) {
-    const token = parseToken(value, { noAttr: true })
-    const selectedIdx = token ? this.props.attributes
-      .findIndex(({ name }) => name === token.attributeName) : -1
+    const {
+      attributeName,
+      attributeValue,
+      prepended,
+      operator,
+      negated
+    } = parseToken(value, { partial: true })
+
+    const hasAttributeName = attributeName && value.indexOf(':') > -1
+    const selectedIdx = hasAttributeName ? this.props.attributes
+      .findIndex(({ name }) => name === attributeName) : -1
 
     const suggestions = this.getSuggestions(selectedIdx)
-    const searchValue = selectedIdx > -1 ? token.attributeValue : value
+    const searchValue = selectedIdx > -1 ? attributeValue : attributeName
 
     const filtered = suggestions.filter(v =>
       new RegExp(escape(searchValue || ''), 'i').test(v))
 
     this.setState({
+      prepended,
+      operator,
+      negated,
       selectedIdx,
       suggestions: filtered,
-      // reset selector to top each time value changes
       highlightedIdx: 0
     })
   }
@@ -140,16 +153,18 @@ export default class extends PureComponent {
     const {
       suggestions,
       highlightedIdx,
-      selectedIdx
+      selectedIdx,
+      prepended,
+      operator
     } = this.state
 
     const suggestion = suggestions[highlightedIdx]
     const newValue = selectedIdx > -1
-      ? `${attributes[selectedIdx].name}:${suggestion}`
+      ? `${attributes[selectedIdx].name}:${operator}${suggestion}`
       : suggestion
 
     const appended = selectedIdx > -1 ? ' ' : ':'
-    this.props.onSelect(`${newValue}${appended}`)
+    this.props.onSelect(`${prepended}${newValue}${appended}`)
   }
 
   render () {

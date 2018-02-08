@@ -168,21 +168,20 @@ export default class extends Component {
     const nextCharIsEmpty = !value.charAt(selectionStart) ||
       /[\s)]/.test(value.charAt(selectionStart))
 
-    // whitespace before and after caret
+    // whitespace/negation/paren before and whitespace after caret
     const isNewWord = nextCharIsEmpty &&
-      /\s/.test(value.charAt(selectionStart - 1))
+      /[\s-(]/.test(value.charAt(selectionStart - 1))
 
     // cursor is at end of the current word
     const atEndOfWord = nextCharIsEmpty &&
-      /[^\s()]/.test(value.charAt(selectionStart - 1))
+      /[^\s)]/.test(value.charAt(selectionStart - 1))
 
     // chunk is a partial attribute
-    const token = parseToken(chunk, { partial: true })
-    const looksLikeAttribute = token && attributes.findIndex(({ name }) =>
-        new RegExp(escape(token.attributeName)).test(name)) > -1
+    const { attributeName } = parseToken(chunk, { partial: true })
+    const looksLikeAttribute = attributeName && attributes.findIndex(({ name }) =>
+      new RegExp(escape(attributeName)).test(name)) > -1
 
-    return !value || isNewWord ||
-      (atEndOfWord && looksLikeAttribute)
+    return !value || isNewWord || (atEndOfWord && looksLikeAttribute)
   }
 
   onClose () {
@@ -247,14 +246,16 @@ export default class extends Component {
 
     let result
     while ((result = regex.exec(value)) !== null) {
-      const isValidAttribute = this.state.attributes
-        .findIndex(({ name }) => result[2] === name) > -1
-
-      if (!isValidAttribute) {
+      const attributeName = result[2]
+      if (this.state.attributes
+        .findIndex(({ name }) => attributeName === name) === -1) {
         continue
       }
 
-      const startPosition = result.index
+      // if there is paren before token, don't include it in highlight
+      const shiftStartPosition = result[0].search(/[^(]/)
+
+      const startPosition = result.index + shiftStartPosition
       const endPosition = regex.lastIndex
 
       positions.push([startPosition, endPosition])
