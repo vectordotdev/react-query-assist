@@ -23,3 +23,14 @@ export function parseToken (value, opts = {}) {
     negated: results[0].indexOf('-') > -1
   } : {}
 }
+
+export function serializeToken (token) {
+  const {
+    prepended = '',
+    attributeName = '',
+    attributeValue = '',
+    operator = ''
+  } = token
+
+  return `${prepended}${attributeName}:${operator}${attributeValue}`
+}

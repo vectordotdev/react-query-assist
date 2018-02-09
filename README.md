@@ -8,12 +8,9 @@
 
 - [ ] Don't reopen dropdown on word if intentionally closed with escape key
 - [ ] Open dropdown when at the end of a quoted token
-- [ ] Keep existing operators when autofilling
 - [ ] Show a few suggestions when there are no enums
 - [ ] Enforce an enum if there are any on an attribute
 - [ ] Visually show negated values, whether token or not (e.g. -"some value")
-- [ ] Reimplement operator functionality
-- [ ] Only show <, >, <=, >= operators for numeric fields
 - [ ] Only show suggestion for quoted value when attribute is string type
 - [ ] Only show wildcard suggestion for string types
 - [ ] Strip out Timber styling and allow custom components/styling

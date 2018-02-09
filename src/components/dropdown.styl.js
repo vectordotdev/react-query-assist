@@ -20,7 +20,7 @@ export const Container = styled.aside`
   font-size: 14px;
   font-weight: 400;
   font-family: -apple-system, sans-serif;
-  min-width: 300px;
+  width: 300px;
   position: absolute;
   z-index: 10;
   transform-origin: 50% 0;
@@ -45,6 +45,7 @@ export const Suggestions = styled.ul`
 
 export const Suggestion = styled.li`
   background: ${props => props.active ? '#6554AF' : 'none'};
+  border: ${props => props.active ? '1px solid #58499B' : '1px solid transparent'};
   padding: 3px 15px;
   cursor: pointer;
 `
@@ -56,7 +57,7 @@ export const Operator = styled.div`
   color: #FFFFFF;
   font-weight: 500;
   padding: 5px 10px;
-  margin-right: 5px;
+  margin: 0 5px 5px 0;
   cursor: pointer;
   opacity: ${props => props.active ? 1 : 0.3};
   &:hover {

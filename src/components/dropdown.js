@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
-import { parseToken } from '../utils/token'
+import { parseToken, serializeToken } from '../utils/token'
 
 import {
   Container,
@@ -8,6 +8,8 @@ import {
   Suggestions,
   Suggestion,
   Helper,
+  Operator,
+  Key,
   KeyOutline,
   Link
 } from './dropdown.styl'
@@ -28,11 +30,13 @@ export default class extends PureComponent {
     this.handleEnterKey = this.handleEnterKey.bind(this)
     this.handleEscKey = this.handleEscKey.bind(this)
     this.handleArrowKeys = this.handleArrowKeys.bind(this)
+    this.getAttribute = this.getAttribute.bind(this)
     this.getSuggestions = this.getSuggestions.bind(this)
     this.filterSuggestions = this.filterSuggestions.bind(this)
     this.acceptSuggestion = this.acceptSuggestion.bind(this)
+    this.getOperators = this.getOperators.bind(this)
+    this.setOperator = this.setOperator.bind(this)
     this.state = {
-      attribute: null,
       suggestions: [],
       highlightedIdx: 0,
       selectedIdx: null,
@@ -111,12 +115,18 @@ export default class extends PureComponent {
     })
   }
 
-  getSuggestions (selectedIdx) {
-    const { attributes } = this.props
+  getAttribute (selectedIdx) {
+    if (selectedIdx !== null && selectedIdx > -1) {
+      return this.props.attributes[selectedIdx]
+    }
+  }
 
-    return selectedIdx !== null && selectedIdx > -1
-      ? attributes[selectedIdx].enumerations || []
-      : attributes.map(({ name }) => name)
+  getSuggestions (selectedIdx) {
+    const selectedAttr = this.getAttribute(selectedIdx)
+
+    return selectedAttr
+      ? selectedAttr.enumerations || []
+      : this.props.attributes.map(({ name }) => name)
   }
 
   filterSuggestions (value) {
@@ -149,7 +159,6 @@ export default class extends PureComponent {
   }
 
   acceptSuggestion () {
-    const { attributes } = this.props
     const {
       suggestions,
       highlightedIdx,
@@ -158,13 +167,56 @@ export default class extends PureComponent {
       operator
     } = this.state
 
+    const attribute = this.getAttribute(selectedIdx)
     const suggestion = suggestions[highlightedIdx]
-    const newValue = selectedIdx > -1
-      ? `${attributes[selectedIdx].name}:${operator}${suggestion}`
+
+    const newValue = attribute
+      ? `${attribute.name}:${operator}${suggestion}`
       : suggestion
 
     const appended = selectedIdx > -1 ? ' ' : ':'
     this.props.onSelect(`${prepended}${newValue}${appended}`)
+  }
+
+  getOperators () {
+    const attribute = this.getAttribute(this.state.selectedIdx)
+    const operators = [
+      { name: 'NEGATE', char: '-', active: this.state.negated }
+    ]
+
+    if (attribute) {
+      switch (attribute.type) {
+        case 'int':
+        case 'float':
+          operators.push({ name: 'GT', char: '>', active: this.state.operator === '>' })
+          operators.push({ name: 'LT', char: '<', active: this.state.operator === '<' })
+          operators.push({ name: 'GTE', char: '>=', active: this.state.operator === '>=' })
+          operators.push({ name: 'LTE', char: '<=', active: this.state.operator === '<=' })
+          break
+      }
+    }
+
+    return operators
+  }
+
+  setOperator (newOperator) {
+    const { value } = this.props
+    const {
+      negated,
+      operator
+    } = this.state
+
+    if (newOperator === '-') {
+      const newValue = value
+        .replace(/^-?(.*)/, `${negated ? '' : '-'}$1`)
+
+      this.props.onSelect(newValue)
+    } else {
+      const token = parseToken(value, { partial: true })
+      token.operator = operator === newOperator ? '' : newOperator
+
+      this.props.onSelect(serializeToken(token))
+    }
   }
 
   render () {
@@ -192,16 +244,16 @@ export default class extends PureComponent {
             ? <Note>No results were found for "{this.state.value}"</Note>
             : <Note>Continue typing for suggestions...</Note>)} */}
 
-        {/* <Section>
-          {this.getRelatedOperators().map((operator, key) =>
+        <Section>
+          {this.getOperators().map((operator, key) =>
             <Operator
               key={key}
-              active={this.state.operator === operator.char}
+              active={operator.active}
               onClick={() => this.setOperator(operator.char)}>
               <Key>{operator.char}</Key>
               {operator.name}
             </Operator>)}
-        </Section> */}
+        </Section>
 
         <Section center>
           <Helper>
