@@ -13,6 +13,7 @@
 - [ ] Visually show negated values, whether token or not (e.g. -"some value")
 - [ ] Only show suggestion for quoted value when attribute is string type
 - [ ] Only show wildcard suggestion for string types
+- [ ] Editing (replacing) a token in the middle of the query should not add a space
 - [ ] Strip out Timber styling and allow custom components/styling
 - [ ] Write some tests
 - [ ] Write out some basic documentation on how to use
