@@ -29,6 +29,23 @@ const Assist = styled(QueryAssist)`
   margin-bottom: 50px;
 `
 
+const Footer = styled.div`
+  padding: 15px;
+  text-align: center;
+`
+
+export const Link = styled.a`
+  display: inline-block;
+  background: #6554AF;
+  border: 1px solid #58499B;
+  border-radius: 4px;
+  color: #FFFFFF;
+  font-weight: 300;
+  text-decoration: none;
+  padding: 7px 15px;
+  cursor: pointer;
+`
+
 class Demo extends Component {
   async getData () {
     await new Promise(resolve => setTimeout(resolve, 100))
@@ -63,20 +80,32 @@ class Demo extends Component {
   }
 
   render () {
+    const footer = () => (
+      <Footer>
+        <Link
+          target='_blank'
+          href='https://timber.io/docs/app/console/searching'>
+          Learn more
+        </Link>
+      </Footer>
+    )
+
     return (
       <Container>
         <Title>Basic Example</Title>
         <Assist
           placeholder='Search Logs ⌘ ⇧ F'
           getData={this.getData}
-          onSubmit={query => console.log(`output query: ${query}`)} />
+          onSubmit={query => console.log(`output query: ${query}`)}
+          footerComponent={footer} />
 
         <Title>Complex Query Example</Title>
         <Assist
           placeholder='Search Logs ⌘ ⇧ F'
           getData={this.getData}
           onSubmit={query => console.log(`output query: ${query}`)}
-          defaultValue={`keyword1 (level:error AND heroku.source:"foo bar") keyword2 http.method:POST\n\t(-level:info OR http_response.status:>=400)\nkeyword3 invalid:token heroku.dyno_id:abc*`} />
+          defaultValue={`keyword1 (level:error AND heroku.source:"foo bar") keyword2 http.method:POST\n\t(-level:info OR http_response.status:>=400)\nkeyword3 invalid:token heroku.dyno_id:abc*`}
+          footerComponent={footer} />
       </Container>
     )
   }

@@ -16,10 +16,14 @@ import {
 
 export default class extends Component {
   static propTypes = { // eslint-disable-line
+    debug: PropTypes.bool,
     defaultValue: PropTypes.string,
     placeholder: PropTypes.string,
     getData: PropTypes.func.isRequired,
-    onSubmit: PropTypes.func.isRequired
+    onSubmit: PropTypes.func.isRequired,
+    // props passed through to dropdown
+    footerComponent: PropTypes.func,
+    keyboardHelpers: PropTypes.bool
   }
 
   constructor (props) {
@@ -307,8 +311,8 @@ export default class extends Component {
     return [
       stuffOnLeft,
       <Inline
-        // style={{ outline: '1px solid red' }}
         key={`after-${index}`}
+        style={{ outline: this.props.debug ? '1px solid red' : 'none' }}
         innerRef={ref => (this._marker = ref)}>
         {stuffOnRight}
       </Inline>
@@ -341,6 +345,8 @@ export default class extends Component {
 
           {this.state.dropdownOpen && !this.state.loading &&
             <Dropdown
+              footerComponent={this.props.footerComponent}
+              keyboardHelpers={this.props.keyboardHelpers}
               attributes={this.state.attributes}
               value={this.state.dropdownValue}
               onSelect={this.onSelectValue}

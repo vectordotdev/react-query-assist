@@ -8,10 +8,11 @@ import {
   Suggestions,
   Suggestion,
   Helper,
+  Operators,
   Operator,
+  OperatorLone,
   Key,
-  KeyOutline,
-  Link
+  KeyOutline
 } from './dropdown.styl'
 
 export default class extends PureComponent {
@@ -21,7 +22,13 @@ export default class extends PureComponent {
     onSelect: PropTypes.func,
     onClose: PropTypes.func,
     offsetX: PropTypes.number,
-    offsetY: PropTypes.number
+    offsetY: PropTypes.number,
+    footerComponent: PropTypes.func,
+    keyboardHelpers: PropTypes.bool
+  }
+
+  static defaultProps = { // eslint-disable-line
+    keyboardHelpers: true
   }
 
   constructor (props) {
@@ -47,12 +54,14 @@ export default class extends PureComponent {
   }
 
   componentDidMount () {
-    document.addEventListener('keydown', this.keydown, false)
     this.filterSuggestions(this.props.value)
+    this.props.keyboardHelpers &&
+      document.addEventListener('keydown', this.keydown, false)
   }
 
   componentWillUnmount () {
-    document.removeEventListener('keydown', this.keydown, false)
+    this.props.keyboardHelpers &&
+      document.removeEventListener('keydown', this.keydown, false)
   }
 
   componentWillReceiveProps (nextProps) {
@@ -179,10 +188,8 @@ export default class extends PureComponent {
   }
 
   getOperators () {
+    const operators = []
     const attribute = this.getAttribute(this.state.selectedIdx)
-    const operators = [
-      { name: 'NEGATE', char: '-', active: this.state.negated }
-    ]
 
     if (attribute) {
       switch (attribute.type) {
@@ -220,6 +227,10 @@ export default class extends PureComponent {
   }
 
   render () {
+    const Footer = this.props.footerComponent
+      ? this.props.footerComponent
+      : () => <div />
+
     const style = {
       left: `${this.props.offsetX || 0}px`,
       top: `${this.props.offsetY || 0}px`
@@ -244,7 +255,14 @@ export default class extends PureComponent {
             ? <Note>No results were found for "{this.state.value}"</Note>
             : <Note>Continue typing for suggestions...</Note>)} */}
 
-        <Section>
+        <Operators>
+          <OperatorLone
+            active={this.state.negated}
+            onClick={() => this.setOperator('-')}>
+            <Key>-</Key>
+            NEGATE
+          </OperatorLone>
+
           {this.getOperators().map((operator, key) =>
             <Operator
               key={key}
@@ -253,28 +271,23 @@ export default class extends PureComponent {
               <Key>{operator.char}</Key>
               {operator.name}
             </Operator>)}
-        </Section>
+        </Operators>
 
-        <Section center>
-          <Helper>
-            <KeyOutline>▲</KeyOutline>
-            <KeyOutline>▼</KeyOutline>
-            to navigate
-          </Helper>
+        {this.props.keyboardHelpers &&
+          <Section center>
+            <Helper>
+              <KeyOutline>▲</KeyOutline>
+              <KeyOutline>▼</KeyOutline>
+              to navigate
+            </Helper>
 
-          <Helper>
-            <KeyOutline long>↵</KeyOutline>
-            to select
-          </Helper>
-        </Section>
+            <Helper>
+              <KeyOutline long>↵</KeyOutline>
+              to select
+            </Helper>
+          </Section>}
 
-        <Section center>
-          <Link
-            target='_blank'
-            href='https://timber.io/docs/app/console/searching'>
-            Learn more
-          </Link>
-        </Section>
+        <Footer />
       </Container>
     )
   }

@@ -20,7 +20,7 @@ export const Container = styled.aside`
   font-size: 14px;
   font-weight: 400;
   font-family: -apple-system, sans-serif;
-  width: 300px;
+  min-width: 270px;
   position: absolute;
   z-index: 10;
   transform-origin: 50% 0;
@@ -50,19 +50,26 @@ export const Suggestion = styled.li`
   cursor: pointer;
 `
 
+export const Operators = Section.extend`
+  padding: 15px 0;
+`
+
 export const Operator = styled.div`
   display: inline-block;
   background: #676C83;
-  border-radius: 2px;
   color: #FFFFFF;
   font-weight: 500;
   padding: 5px 10px;
-  margin: 0 5px 5px 0;
   cursor: pointer;
   opacity: ${props => props.active ? 1 : 0.3};
   &:hover {
     opacity: ${props => props.active ? 1 : 0.6};
   }
+`
+
+export const OperatorLone = Operator.extend`
+  display: block;
+  margin-bottom: 5px;
 `
 
 export const Key = styled.div`
@@ -102,16 +109,4 @@ export const Note = styled.div`
   font-style: italic;
   text-align: center;
   padding: 15px;
-`
-
-export const Link = styled.a`
-  display: inline-block;
-  background: #6554AF;
-  border: 1px solid #58499B;
-  border-radius: 4px;
-  color: #FFFFFF;
-  font-weight: 300;
-  text-decoration: none;
-  padding: 7px 15px;
-  cursor: pointer;
 `
