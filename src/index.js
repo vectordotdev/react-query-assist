@@ -127,7 +127,6 @@ export default class extends Component {
 
     const { chunk } = this.getCurrentChunk(value)
     const suggest = this.shouldAutosuggest(chunk)
-    console.log(suggest)
 
     if (suggest) {
       this.setState({
@@ -143,19 +142,26 @@ export default class extends Component {
     }
   }
 
-  onSelectValue (chunk) {
+  onSelectValue (chunk, appended) {
     const { value } = this.state
     const {
       index,
       indexEnd
     } = this.getCurrentChunk(value)
 
+    const before = value.slice(0, index)
+    const after = value.slice(indexEnd)
+    const position = index + chunk.length + appended.length
+    const positionEnd = position + after.length
+
+    if (appended === ' ' && position < positionEnd) {
+      appended = ''
+    }
+
     this.setState({
-      value: `${value.slice(0, index)}${chunk}${value.slice(indexEnd)}`
+      value: `${before}${chunk}${appended}${after}`
     }, () => {
       // position caret at the end of the inserted value
-      const position = index + chunk.length
-
       this._input.focus()
       this._input.setSelectionRange(position, position)
     })

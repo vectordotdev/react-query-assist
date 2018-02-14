@@ -204,8 +204,8 @@ export default class extends PureComponent {
       ? `${attribute.name}:${operator}${suggestion}`
       : suggestion
 
-    const appended = selectedIdx > -1 ? ' ' : ':'
-    this.props.onSelect(`${prepended}${newValue}${appended}`)
+    const appended = selectedIdx === -1 ? ':' : ' '
+    this.props.onSelect(`${prepended}${newValue}`, appended)
   }
 
   getOperators () {
