@@ -39,6 +39,7 @@ export default class extends PureComponent {
     this.handleArrowKeys = this.handleArrowKeys.bind(this)
     this.getAttribute = this.getAttribute.bind(this)
     this.getSuggestions = this.getSuggestions.bind(this)
+    this.getSuggestionAddons = this.getSuggestionAddons.bind(this)
     this.filterSuggestions = this.filterSuggestions.bind(this)
     this.acceptSuggestion = this.acceptSuggestion.bind(this)
     this.getOperators = this.getOperators.bind(this)
@@ -130,38 +131,58 @@ export default class extends PureComponent {
     }
   }
 
-  getSuggestions (selectedIdx) {
-    const selectedAttr = this.getAttribute(selectedIdx)
-
-    return selectedAttr
-      ? selectedAttr.enumerations || []
+  getSuggestions (attribute) {
+    return attribute
+      ? attribute.enumerations || []
       : this.props.attributes.map(({ name }) => name)
   }
 
+  getSuggestionAddons (attribute, parsed) {
+    const addons = []
+
+    if (attribute) {
+      if (
+        !parsed.quoted &&
+        parsed.attributeValue &&
+        attribute.type === 'string' &&
+        (!attribute.enumerations || attribute.enumerations.length === 0)
+      ) {
+        addons.push(`"${parsed.attributeValue}"`)
+      }
+
+      if (
+        !parsed.quoted &&
+        !parsed.wildcard &&
+        parsed.attributeValue &&
+        attribute.type === 'string'
+      ) {
+        addons.push(`${parsed.attributeValue}*`)
+      }
+    }
+
+    return addons
+  }
+
   filterSuggestions (value) {
-    const {
-      attributeName,
-      attributeValue,
-      prepended,
-      operator,
-      negated
-    } = parseToken(value, { partial: true })
+    const parsed = parseToken(value, { partial: true })
 
-    const hasAttributeName = attributeName && value.indexOf(':') > -1
+    const hasAttributeName = parsed.attributeName && value.indexOf(':') > -1
     const selectedIdx = hasAttributeName ? this.props.attributes
-      .findIndex(({ name }) => name === attributeName) : -1
+      .findIndex(({ name }) => name === parsed.attributeName) : -1
 
-    const suggestions = this.getSuggestions(selectedIdx)
-    const searchValue = selectedIdx > -1 ? attributeValue : attributeName
+    const attribute = this.getAttribute(selectedIdx)
+    const suggestions = this.getSuggestions(attribute)
+    const searchValue = selectedIdx > -1 ? parsed.attributeValue : parsed.attributeName
 
-    const filtered = suggestions.filter(v =>
-      new RegExp(escape(searchValue || ''), 'i').test(v))
+    const filtered = suggestions
+      .filter(v => new RegExp(escape(searchValue || ''), 'i').test(v))
+      .concat(this.getSuggestionAddons(attribute, parsed))
 
     this.setState({
-      prepended,
-      operator,
-      negated,
       selectedIdx,
+      prepended: parsed.prepended,
+      operator: parsed.operator,
+      negated: parsed.negated,
       suggestions: filtered,
       highlightedIdx: 0
     })

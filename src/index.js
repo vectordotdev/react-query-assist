@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import PageClick from 'react-page-click'
-import escape from 'escape-string-regexp'
 import { parseToken, tokenRegex } from './utils/token'
 import Dropdown from './components/dropdown'
 
@@ -128,6 +127,7 @@ export default class extends Component {
 
     const { chunk } = this.getCurrentChunk(value)
     const suggest = this.shouldAutosuggest(chunk)
+    console.log(suggest)
 
     if (suggest) {
       this.setState({
@@ -163,14 +163,11 @@ export default class extends Component {
 
   shouldAutosuggest (chunk) {
     const { selectionStart } = this._input
-    const {
-      value,
-      attributes
-    } = this.state
+    const { value } = this.state
 
     // next character is whitespace, closing paren or null
     const nextCharIsEmpty = !value.charAt(selectionStart) ||
-      /[\s)]/.test(value.charAt(selectionStart))
+      /[)\s]/.test(value.charAt(selectionStart))
 
     // whitespace/negation/paren before and whitespace after caret
     const isNewWord = nextCharIsEmpty &&
@@ -178,14 +175,14 @@ export default class extends Component {
 
     // cursor is at end of the current word
     const atEndOfWord = nextCharIsEmpty &&
-      /[^\s)]/.test(value.charAt(selectionStart - 1))
+      /[^)\s]/.test(value.charAt(selectionStart - 1))
 
-    // chunk is a partial attribute
-    const { attributeName } = parseToken(chunk, { partial: true })
-    const looksLikeAttribute = attributeName && attributes.findIndex(({ name }) =>
-      new RegExp(escape(attributeName)).test(name)) > -1
+    // make sure we're not inside a quoted value in token
+    const parsed = parseToken(chunk, { partial: true })
+    const inQuotedToken = parsed.attributeValue &&
+      parsed.attributeValue.indexOf('"') > -1
 
-    return !value || isNewWord || (atEndOfWord && looksLikeAttribute)
+    return !value || isNewWord || (atEndOfWord && !inQuotedToken)
   }
 
   onClose () {
@@ -250,9 +247,11 @@ export default class extends Component {
 
     let result
     while ((result = regex.exec(value)) !== null) {
-      const attributeName = result[2]
-      if (this.state.attributes
-        .findIndex(({ name }) => attributeName === name) === -1) {
+      const parsed = parseToken(result, {
+        attributes: this.state.attributes
+      })
+
+      if (!parsed.attributeNameValid || !parsed.attributeValueValid) {
         continue
       }
 

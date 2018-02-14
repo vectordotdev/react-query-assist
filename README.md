@@ -7,12 +7,7 @@
 ## Todo
 
 - [ ] Don't reopen dropdown on word if intentionally closed with escape key
-- [ ] Open dropdown when at the end of a quoted token
-- [ ] Show a few suggestions when there are no enums
-- [ ] Enforce an enum if there are any on an attribute
 - [ ] Visually show negated values, whether token or not (e.g. -"some value")
-- [ ] Only show suggestion for quoted value when attribute is string type
-- [ ] Only show wildcard suggestion for string types
 - [ ] Editing (replacing) a token in the middle of the query should not add a space
 - [ ] Strip out Timber styling and allow custom components/styling
 - [ ] Write some tests
