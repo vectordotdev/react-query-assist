@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import PageClick from 'react-page-click'
+import { ThemeProvider } from 'styled-components'
 import { parseToken, tokenRegex } from './utils/token'
 import Dropdown from './components/dropdown'
 
@@ -18,11 +19,20 @@ export default class extends Component {
     debug: PropTypes.bool,
     defaultValue: PropTypes.string,
     placeholder: PropTypes.string,
-    getData: PropTypes.func.isRequired,
-    onSubmit: PropTypes.func.isRequired,
-    // props passed through to dropdown
+    getData: PropTypes.func,
+    onSubmit: PropTypes.func,
+    keyboardHelpers: PropTypes.bool,
     footerComponent: PropTypes.func,
-    keyboardHelpers: PropTypes.bool
+    inputTheme: PropTypes.object,
+    dropdownTheme: PropTypes.object
+  }
+
+  static defaultProps = { // eslint-disable-line
+    getData: () => Promise.resolve([]),
+    onSubmit: console.log,
+    placeholder: 'Search',
+    inputTheme: {},
+    dropdownTheme: {}
   }
 
   constructor (props) {
@@ -142,7 +152,7 @@ export default class extends Component {
     }
   }
 
-  onSelectValue (chunk, appended) {
+  onSelectValue (chunk, appended = '') {
     const { value } = this.state
     const {
       index,
@@ -154,12 +164,10 @@ export default class extends Component {
     const position = index + chunk.length + appended.length
     const positionEnd = position + after.length
 
-    if (appended === ' ' && position < positionEnd) {
-      appended = ''
-    }
-
     this.setState({
-      value: `${before}${chunk}${appended}${after}`
+      value: appended === ' ' && position < positionEnd
+        ? `${before}${chunk}${after}`
+        : `${before}${chunk}${appended}${after}`
     }, () => {
       // position caret at the end of the inserted value
       this._input.focus()
@@ -325,39 +333,64 @@ export default class extends Component {
   }
 
   render () {
+    const inputTheme = {
+      background: '#FFFFFF',
+      border: '1px solid rgba(0, 0, 0, .1)',
+      color: '#333333',
+      tokenColor: '#AAAAAA',
+      ...this.props.inputTheme
+    }
+
+    const dropdownTheme = {
+      background: '#000000',
+      backgroundActive: '#FFFFFF',
+      borderActive: '1px solid #AAAAAA',
+      boxShadow: '0 4px 10px rgba(0, 0, 0, .25)',
+      color: '#FFFFFF',
+      colorActive: '#000000',
+      minWidth: '270px',
+      ...this.props.dropdownTheme
+    }
+
     return (
       <PageClick
         outsideOnly
         notify={this.onClose}>
         <Container
           className={this.props.className}>
-          <InputContainer>
-            <Overlay>
-              {this.state.overlayComponents}
-            </Overlay>
+          <ThemeProvider
+            theme={inputTheme}>
+            <InputContainer>
+              <Overlay>
+                {this.state.overlayComponents}
+              </Overlay>
 
-            <Input
-              autoComplete='off'
-              autoCorrect='off'
-              autoCapitalize='off'
-              spellCheck='false'
-              placeholder={this.props.placeholder || 'Search'}
-              value={this.state.value}
-              onChange={this.onChange}
-              onSelect={this.onSelect}
-              inputRef={ref => (this._input = ref)} />
-          </InputContainer>
+              <Input
+                autoComplete='off'
+                autoCorrect='off'
+                autoCapitalize='off'
+                spellCheck='false'
+                placeholder={this.props.placeholder}
+                value={this.state.value}
+                onChange={this.onChange}
+                onSelect={this.onSelect}
+                inputRef={ref => (this._input = ref)} />
+            </InputContainer>
+          </ThemeProvider>
 
           {this.state.dropdownOpen && !this.state.loading &&
-            <Dropdown
-              footerComponent={this.props.footerComponent}
-              keyboardHelpers={this.props.keyboardHelpers}
-              attributes={this.state.attributes}
-              value={this.state.dropdownValue}
-              onSelect={this.onSelectValue}
-              onClose={this.onClose}
-              offsetX={this.state.dropdownX}
-              offsetY={this.state.dropdownY} />}
+            <ThemeProvider
+              theme={dropdownTheme}>
+              <Dropdown
+                keyboardHelpers={this.props.keyboardHelpers}
+                footerComponent={this.props.footerComponent}
+                attributes={this.state.attributes}
+                value={this.state.dropdownValue}
+                onSelect={this.onSelectValue}
+                onClose={this.onClose}
+                offsetX={this.state.dropdownX}
+                offsetY={this.state.dropdownY} />
+            </ThemeProvider>}
         </Container>
       </PageClick>
     )

@@ -15,7 +15,7 @@ import {
   KeyOutline
 } from './dropdown.styl'
 
-export default class extends PureComponent {
+class Dropdown extends PureComponent {
   static propTypes = { // eslint-disable-line
     value: PropTypes.string,
     attributes: PropTypes.array,
@@ -23,12 +23,13 @@ export default class extends PureComponent {
     onClose: PropTypes.func,
     offsetX: PropTypes.number,
     offsetY: PropTypes.number,
-    footerComponent: PropTypes.func,
-    keyboardHelpers: PropTypes.bool
+    keyboardHelpers: PropTypes.bool,
+    footerComponent: PropTypes.func
   }
 
   static defaultProps = { // eslint-disable-line
-    keyboardHelpers: true
+    keyboardHelpers: true,
+    footerComponent: () => <span />
   }
 
   constructor (props) {
@@ -249,17 +250,11 @@ export default class extends PureComponent {
 
   render () {
     const Footer = this.props.footerComponent
-      ? this.props.footerComponent
-      : () => <div />
-
-    const style = {
-      left: `${this.props.offsetX || 0}px`,
-      top: `${this.props.offsetY || 0}px`
-    }
 
     return (
       <Container
-        style={style}>
+        left={this.props.offsetX || 0}
+        top={this.props.offsetY || 0}>
         <Suggestions>
           {this.state.suggestions.map((suggestion, key) =>
             <Suggestion
@@ -270,11 +265,6 @@ export default class extends PureComponent {
               {suggestion}
             </Suggestion>)}
         </Suggestions>
-
-        {/* {this.state.suggestions.length < 1 &&
-          (this.state.value
-            ? <Note>No results were found for "{this.state.value}"</Note>
-            : <Note>Continue typing for suggestions...</Note>)} */}
 
         <Operators>
           <OperatorLone
@@ -313,3 +303,5 @@ export default class extends PureComponent {
     )
   }
 }
+
+export default Dropdown

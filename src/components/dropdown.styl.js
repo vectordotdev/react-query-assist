@@ -11,17 +11,13 @@ export const swingDown = keyframes`
   }
 `
 
-export const Container = styled.aside`
+export const Container = styled.aside.attrs({
+  style: props => props.theme
+})`
   display: inline-block;
-  background: #808498;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, .25);
-  border-radius: 2px;
-  outline: none;
-  font-size: 14px;
-  font-weight: 400;
-  font-family: -apple-system, sans-serif;
-  min-width: 270px;
   position: absolute;
+  top: ${props => props.top}px;
+  left: ${props => props.left}px;
   z-index: 10;
   transform-origin: 50% 0;
   animation: ${swingDown} ease-in-out 250ms;
@@ -38,14 +34,14 @@ export const Section = styled.section`
 
 export const Suggestions = styled.ul`
   list-style-type: none;
-  color: #FFFFFF;
   line-height: 20px;
   margin: 10px 0;
 `
 
 export const Suggestion = styled.li`
-  background: ${props => props.active ? '#6554AF' : 'none'};
-  border: ${props => props.active ? '1px solid #58499B' : '1px solid transparent'};
+  background: ${props => props.active ? props.theme.backgroundActive : 'none'};
+  border: ${props => props.active ? props.theme.borderActive : '1px solid transparent'};
+  color: ${props => props.active ? props.theme.colorActive : 'inherit'};
   padding: 3px 15px;
   cursor: pointer;
 `
@@ -56,14 +52,13 @@ export const Operators = Section.extend`
 
 export const Operator = styled.div`
   display: inline-block;
-  background: #676C83;
-  color: #FFFFFF;
+  background: ${props => props.active ? 'rgba(255, 255, 255, 0.2)' : 'none'};
   font-weight: 500;
+  line-height: 18px;
   padding: 5px 10px;
   cursor: pointer;
-  opacity: ${props => props.active ? 1 : 0.3};
   &:hover {
-    opacity: ${props => props.active ? 1 : 0.6};
+    background: rgba(255, 255, 255, 0.1);
   }
 `
 
@@ -74,12 +69,12 @@ export const OperatorLone = Operator.extend`
 
 export const Key = styled.div`
   display: inline-block;
-  background: #808498;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
-  color: #FFFFFF;
   font-size: 12px;
   font-weight: 700;
   line-height: 18px;
+  min-width: 20px;
   text-align: center;
   vertical-align: middle;
   padding: 2px 5px;
@@ -88,8 +83,8 @@ export const Key = styled.div`
 
 export const KeyOutline = Key.extend`
   background: none;
-  border: 1px solid #C3C4CF;
-  color: #C3C4CF;
+  border: 1px solid ${props => props.theme.color};
+  color: ${props => props.theme.color};
   font-size: 8px;
   padding: 0;
   width: ${props => props.long ? '36px' : '18px'};
@@ -98,15 +93,8 @@ export const KeyOutline = Key.extend`
 
 export const Helper = styled.div`
   display: inline-block;
-  color: #C3C4CF;
+  opacity: 0.5;
   &:not(:last-child) {
     margin-right: 15px;
   }
-`
-
-export const Note = styled.div`
-  color: #C4C5CF;
-  font-style: italic;
-  text-align: center;
-  padding: 15px;
 `

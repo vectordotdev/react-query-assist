@@ -80,6 +80,29 @@ class Demo extends Component {
   }
 
   render () {
+    const inputTheme = {
+      background: '#393B4A',
+      border: '1px solid #1F1E21',
+      color: '#9FA2B2',
+      placeholderColor: 'rgba(255, 255, 255, 0.2)',
+      tokenColor: '#FFFFFF',
+      borderRadius: '4px',
+      fontSize: '16px',
+      fontWeight: 300,
+      fontFamily: '"Courier New", Courier, monospace'
+    }
+
+    const dropdownTheme = {
+      background: '#808498',
+      backgroundActive: '#6554AF',
+      borderActive: '1px solid #58499B',
+      borderRadius: '2px',
+      colorActive: '#FFFFFF',
+      fontSize: '14px',
+      fontWeight: 400,
+      fontFamily: '-apple-system, sans-serif'
+    }
+
     const footer = () => (
       <Footer>
         <Link
@@ -95,16 +118,20 @@ class Demo extends Component {
         <Title>Basic Example</Title>
         <Assist
           placeholder='Search Logs ⌘ ⇧ F'
-          getData={this.getData}
           onSubmit={query => console.log(`output query: ${query}`)}
+          getData={this.getData}
+          inputTheme={inputTheme}
+          dropdownTheme={dropdownTheme}
           footerComponent={footer} />
 
         <Title>Complex Query Example</Title>
         <Assist
           placeholder='Search Logs ⌘ ⇧ F'
-          getData={this.getData}
-          onSubmit={query => console.log(`output query: ${query}`)}
           defaultValue={`keyword1 (level:error AND heroku.source:"foo bar") keyword2 http.method:POST\n\t(-level:info OR http_response.status:>=400)\nkeyword3 invalid:token heroku.dyno_id:abc*`}
+          onSubmit={query => console.log(`output query: ${query}`)}
+          getData={this.getData}
+          inputTheme={inputTheme}
+          dropdownTheme={dropdownTheme}
           footerComponent={footer} />
       </Container>
     )

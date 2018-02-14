@@ -6,13 +6,9 @@ export const Container = styled.div`
   width: 100%;
 `
 
-export const InputContainer = styled.div`
-  background: #393B4A;
-  border: 1px solid #1F1E21;
-  border-radius: 4px;
-  font-size: 16px;
-  font-weight: 300;
-  font-family: 'Courier New', Courier, monospace;
+export const InputContainer = styled.div.attrs({
+  style: props => props.theme
+})`
   position: relative;
   cursor: text;
 `
@@ -24,14 +20,14 @@ export const Input = styled(Textarea)`
   outline: none;
   resize: none;
   font: inherit;
-  color: #9FA2B2;
+  color: inherit;
   width: 100%;
   padding: 15px 20px;
   line-height: 20px;
   white-space: pre-wrap;
   word-wrap: break-word;
   ::placeholder {
-    color: rgba(255, 255, 255, 0.2);
+    color: ${props => props.theme.placeholderColor};
   }
 `
 
@@ -50,13 +46,13 @@ export const Inline = styled.span`
 `
 
 export const Token = Inline.extend`
-  color: #FFFFFF;
+  color: ${props => props.theme.tokenColor};
   cursor: pointer;
   pointer-events: auto;
   position: relative;
   &:after {
     content: '';
-    background: #FFFFFF;
+    background: ${props => props.theme.tokenColor};
     position: absolute;
     top: 100%;
     left: 0;
