@@ -47,6 +47,7 @@ export const Inline = styled.span`
 
 export const Token = Inline.extend`
   color: ${props => props.theme.tokenColor};
+  font-weight: 500;
   cursor: pointer;
   pointer-events: auto;
   position: relative;

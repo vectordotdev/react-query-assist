@@ -88,8 +88,7 @@ class Demo extends Component {
       tokenColor: '#FFFFFF',
       borderRadius: '4px',
       fontSize: '16px',
-      fontWeight: 300,
-      fontFamily: '"Courier New", Courier, monospace'
+      fontWeight: 300
     }
 
     const dropdownTheme = {

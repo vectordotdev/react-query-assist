@@ -336,13 +336,15 @@ export default class extends Component {
     const inputTheme = {
       background: '#FFFFFF',
       border: '1px solid rgba(0, 0, 0, .1)',
-      color: '#333333',
-      tokenColor: '#AAAAAA',
+      color: '#505050',
+      placeholderColor: '#D7D7D7',
+      tokenColor: '#2384FF',
+      fontFamily: '"Courier New", Courier, monospace',
       ...this.props.inputTheme
     }
 
     const dropdownTheme = {
-      background: '#000000',
+      background: '#555555',
       backgroundActive: '#FFFFFF',
       borderActive: '1px solid #AAAAAA',
       boxShadow: '0 4px 10px rgba(0, 0, 0, .25)',

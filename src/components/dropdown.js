@@ -15,7 +15,7 @@ import {
   KeyOutline
 } from './dropdown.styl'
 
-class Dropdown extends PureComponent {
+export default class extends PureComponent {
   static propTypes = { // eslint-disable-line
     value: PropTypes.string,
     attributes: PropTypes.array,
@@ -29,7 +29,7 @@ class Dropdown extends PureComponent {
 
   static defaultProps = { // eslint-disable-line
     keyboardHelpers: true,
-    footerComponent: () => <span />
+    footerComponent: () => null
   }
 
   constructor (props) {
@@ -303,5 +303,3 @@ class Dropdown extends PureComponent {
     )
   }
 }
-
-export default Dropdown

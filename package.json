@@ -1,14 +1,24 @@
 {
   "name": "react-query-assist",
   "version": "1.0.0",
-  "description": "",
+  "description": "A smart search bar for React",
   "license": "MIT",
-  "homepage": "https://github.com/timberio/react-query-assist#readme",
+  "homepage": "https://react-query-assist.netlify.com",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/timberio/react-query-assist.git"
   },
-  "keywords": [],
+  "keywords": [
+    "react",
+    "query",
+    "assist",
+    "search",
+    "token",
+    "highlight",
+    "autocomplete",
+    "autosuggest",
+    "dropdown"
+  ],
   "files": [
     "css",
     "es",
