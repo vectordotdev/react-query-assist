@@ -69,7 +69,7 @@ class Demo extends Component {
       {
         name: 'heroku.dyno_id',
         type: 'string',
-        enumerations: []
+        enumerations: null
       },
       {
         name: 'heroku.source',

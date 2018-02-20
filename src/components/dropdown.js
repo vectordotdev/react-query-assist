@@ -165,7 +165,7 @@ export default class extends PureComponent {
   }
 
   filterSuggestions (value) {
-    const parsed = parseToken(value, { partial: true })
+    const parsed = parseToken(value)
 
     const hasAttributeName = parsed.attributeName && value.indexOf(':') > -1
     const selectedIdx = hasAttributeName ? this.props.attributes
@@ -241,7 +241,7 @@ export default class extends PureComponent {
 
       this.props.onSelect(newValue)
     } else {
-      const token = parseToken(value, { partial: true })
+      const token = parseToken(value)
       token.operator = operator === newOperator ? '' : newOperator
 
       this.props.onSelect(serializeToken(token))

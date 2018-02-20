@@ -1,23 +1,27 @@
-import { compareSoft, compareHard } from './compare'
+import { compare, compareFuzzy } from './compare'
 
 export function tokenRegex (opts = {}) {
+  const qtfr = opts.partial ? '*' : '+'
+
   return new RegExp(
-    `([\\(|-]+)?` + // capture prepended character, negation or paren
+    `(?!^|\\(|\\s)*` + // find beginning of token
+    `([-]+)?` + // capture prepended negation character
     `([\\w.]+)` + // the attribute name
     `${opts.partial ? '?' : ''}` + // assume it's a token, even with no attribute
     `:${opts.partial ? '?' : ''}` + // assume it's a token, even with no colon
     `([><=]*)` + // the operators
-    `(?:(")(.*?)"|([^\\s()*:]*))` + // the attribute value, checking for quotes
-    `${opts.noAttr || opts.partial ? '?' : ''}` + // whether attribute value can be empty
-    `(\\*)?`, // capture appended wildcard
+    `(?:(")(.${qtfr}?)"|([^\\s()*:"]${qtfr}))` + // the attribute value, checking for quotes
+    `${opts.partial ? '?' : ''}` + // whether attribute value can be empty
+    `(\\*)?` + // capture appended wildcard
+    `(?!\\s|\\)|$)*`, // find the end of the token
     'g'
   )
 }
 
-export function parseToken (value, opts = {}) {
+export function parseToken (value, attributes = []) {
   const results = Array.isArray(value)
     ? value
-    : tokenRegex(opts).exec(value)
+    : tokenRegex({ partial: true }).exec(value)
 
   if (!results || !results.length) {
     return {}
@@ -34,21 +38,19 @@ export function parseToken (value, opts = {}) {
     wildcard: Boolean(results[7])
   }
 
-  const attributes = opts.attributes || []
-  const attribute = attributes
-    .find(({ name }) => compareHard(name, tokenData.attributeName))
+  if (attributes) {
+    const attribute = attributes
+      .find(({ name }) => compare(name, tokenData.attributeName))
 
-  if (attribute) {
-    const hasEnums = attribute.enumerations &&
-      attribute.enumerations.length
+    if (attribute) {
+      tokenData.attributeNameValid = true
+      tokenData.attributeValueValid = true
 
-    tokenData.attributeNameValid = true
-    tokenData.attributeValueValid = hasEnums
-      // do a soft check since we don't care about type
-      ? attribute.enumerations
-        .findIndex(v => compareSoft(tokenData.attributeValue, v)) > -1
-      // no enumerations, so any value is valid
-      : true
+      if (Array.isArray(attribute.enumerations)) {
+        tokenData.attributeValueValid = attribute.enumerations
+          .findIndex(v => compareFuzzy(tokenData.attributeValue, v)) > -1
+      }
+    }
   }
 
   return tokenData
@@ -60,7 +62,30 @@ export function serializeToken (token) {
     attributeName = '',
     attributeValue = '',
     operator = ''
-  } = token
+  } = token || {}
 
   return `${prepended}${attributeName}:${operator}${attributeValue}`
+}
+
+export function extractTokens (value, attributes) {
+  const positions = []
+  const regex = tokenRegex()
+
+  let result
+  while ((result = regex.exec(value)) !== null) {
+    if (attributes) {
+      const parsed = parseToken(result, attributes)
+
+      if (!parsed.attributeNameValid || !parsed.attributeValueValid) {
+        continue
+      }
+    }
+
+    positions.push([
+      result.index, // start position
+      regex.lastIndex // end position
+    ])
+  }
+
+  return positions
 }

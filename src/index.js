@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import PageClick from 'react-page-click'
 import { ThemeProvider } from 'styled-components'
-import { parseToken, tokenRegex } from './utils/token'
+import { parseToken, extractTokens } from './utils/token'
 import Dropdown from './components/dropdown'
 
 import {
@@ -47,7 +47,6 @@ export default class extends Component {
     this.onClose = this.onClose.bind(this)
     this.onClickToken = this.onClickToken.bind(this)
     this.getCurrentChunk = this.getCurrentChunk.bind(this)
-    this.extractTokens = this.extractTokens.bind(this)
     this.buildOverlay = this.buildOverlay.bind(this)
     this.state = {
       loading: true,
@@ -192,7 +191,7 @@ export default class extends Component {
       /[^)\s]/.test(value.charAt(selectionStart - 1))
 
     // make sure we're not inside a quoted value in token
-    const parsed = parseToken(chunk, { partial: true })
+    const parsed = parseToken(chunk)
     const inQuotedToken = parsed.attributeValue &&
       parsed.attributeValue.indexOf('"') > -1
 
@@ -217,7 +216,7 @@ export default class extends Component {
     } = this._input
 
     // get location of each token found in value
-    const tokens = this.extractTokens(value)
+    const tokens = extractTokens(value, this.state.attributes)
 
     // find index of the closest previous whitespace
     const prevStr = value.substring(0, selectionStart)
@@ -255,35 +254,9 @@ export default class extends Component {
     }
   }
 
-  extractTokens (value) {
-    const positions = []
-    const regex = tokenRegex()
-
-    let result
-    while ((result = regex.exec(value)) !== null) {
-      const parsed = parseToken(result, {
-        attributes: this.state.attributes
-      })
-
-      if (!parsed.attributeNameValid || !parsed.attributeValueValid) {
-        continue
-      }
-
-      // if there is paren before token, don't include it in highlight
-      const shiftStartPosition = result[0].search(/[^(]/)
-
-      const startPosition = result.index + shiftStartPosition
-      const endPosition = regex.lastIndex
-
-      positions.push([startPosition, endPosition])
-    }
-
-    return positions
-  }
-
   buildTokens (value, relativeToIdx = 0) {
     const chunks = []
-    const positions = this.extractTokens(value)
+    const positions = extractTokens(value, this.state.attributes)
 
     let currentPosition = 0
     positions.reduce((prev, next) => {

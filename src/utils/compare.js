@@ -1,9 +1,17 @@
 import escape from 'escape-string-regexp'
 
-export function compareSoft (val1, val2) {
-  return new RegExp(escape(val1 || ''), 'i').test(val2 || '')
+/**
+ * case-insensitive comparison
+ */
+export function compare (partialValue, fullValue) {
+  return new RegExp(`^${escape(partialValue || '')}$`, 'i')
+    .test(fullValue || '')
 }
 
-export function compareHard (val1, val2) {
-  return new RegExp(`^${escape(val1 || '')}$`, 'i').test(val2 || '')
+/**
+ * case-insensitive comparison (fuzzy)
+ */
+export function compareFuzzy (partialValue, fullValue) {
+  return new RegExp(escape(partialValue || ''), 'i')
+    .test(fullValue || '')
 }

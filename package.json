@@ -31,23 +31,27 @@
     "prebuild": "nwb clean-module && nwb clean-demo",
     "build": "nwb build-react-component",
     "test:lint": "standard --verbose | snazzy",
-    "test:unit": "nwb test-react",
+    "test:unit": "ava src/**/*.spec.js",
+    "test:integration": "ava test/**/*.test.js",
     "test": "npm-run-all test:*",
-    "start:test": "nwb test-react --server",
     "start": "nwb serve-react-demo",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "peerDependencies": {
     "react": "16.x"
   },
   "devDependencies": {
+    "ava": "^1.0.0-beta.3",
     "babel-eslint": "^8.2.1",
+    "babel-preset-env": "^1.6.1",
+    "babel-register": "^6.26.0",
+    "enzyme": "^3.3.0",
     "npm-run-all": "^4.1.2",
     "nwb": "0.21.x",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "snazzy": "^7.0.0",
-    "standard": "^10.0.3"
+    "standard": "^11.0.0"
   },
   "dependencies": {
     "escape-string-regexp": "^1.0.5",
@@ -55,6 +59,16 @@
     "react-page-click": "^4.0.2",
     "react-textarea-autosize": "^5.2.1",
     "styled-components": "^3.1.6"
+  },
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  },
+  "ava": {
+    "require": [
+      "babel-register"
+    ]
   },
   "standard": {
     "parser": "babel-eslint",
