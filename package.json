@@ -32,7 +32,7 @@
     "build": "nwb build-react-component",
     "test:lint": "standard --verbose | snazzy",
     "test:unit": "ava src/**/*.spec.js",
-    "test:integration": "ava test/**/*.test.js",
+    "test:integration": "ava tests/**/*.test.js",
     "test": "npm-run-all test:*",
     "start": "nwb serve-react-demo",
     "prepare": "npm run build"
@@ -41,15 +41,23 @@
     "react": "16.x"
   },
   "devDependencies": {
+    "@babel/core": "^7.0.0-beta.40",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.40",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.40",
+    "@babel/polyfill": "^7.0.0-beta.40",
+    "@babel/preset-env": "^7.0.0-beta.40",
+    "@babel/preset-react": "^7.0.0-beta.40",
+    "@babel/register": "^7.0.0-beta.40",
     "ava": "^1.0.0-beta.3",
     "babel-eslint": "^8.2.1",
-    "babel-preset-env": "^1.6.1",
-    "babel-register": "^6.26.0",
     "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
+    "jsdom": "^11.6.2",
     "npm-run-all": "^4.1.2",
     "nwb": "0.21.x",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "sinon": "^4.3.0",
     "snazzy": "^7.0.0",
     "standard": "^11.0.0"
   },
@@ -62,12 +70,19 @@
   },
   "babel": {
     "presets": [
-      "env"
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-class-properties",
+      "@babel/plugin-proposal-object-rest-spread"
     ]
   },
   "ava": {
     "require": [
-      "babel-register"
+      "@babel/register",
+      "@babel/polyfill",
+      "./tests/helpers.js"
     ]
   },
   "standard": {

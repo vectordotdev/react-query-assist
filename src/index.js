@@ -60,17 +60,12 @@ export default class extends Component {
     }
   }
 
-  async componentDidMount () {
+  componentDidMount () {
     document.addEventListener('keydown', this.keydown, false)
 
-    try {
-      this.setState({
-        attributes: await this.props.getData(),
-        loading: false
-      })
-    } catch (err) {
-      console.error('Error while getting data:', err)
-    }
+    this.props.getData()
+      .then(res => this.setState({ attributes: res, loading: false }))
+      .catch(err => console.error('Error while getting data:', err))
   }
 
   componentWillUnmount () {
@@ -277,7 +272,7 @@ export default class extends Component {
     }, [null, 0])
 
     chunks.push(value.substring(currentPosition))
-    return chunks
+    return chunks.filter(Boolean)
   }
 
   buildOverlay (value) {

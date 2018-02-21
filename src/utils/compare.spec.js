@@ -1,14 +1,14 @@
 import test from 'ava'
 import * as compare from './compare'
 
-test('unit: compare', t => {
+test('compare', t => {
   t.true(compare.compare())
   t.true(compare.compare('foobar', 'foobar'))
   t.true(compare.compare('foobar', 'FOOBAR'))
   t.false(compare.compare('foo', 'FOOBAR'))
 })
 
-test('unit: compareFuzzy', t => {
+test('compareFuzzy', t => {
   t.true(compare.compareFuzzy())
   t.true(compare.compareFuzzy('oob', 'Foobar'))
   t.true(compare.compareFuzzy('foo', 'Foobar'))

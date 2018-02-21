@@ -28,6 +28,9 @@ export default class extends PureComponent {
   }
 
   static defaultProps = { // eslint-disable-line
+    value: '',
+    onSelect: () => {},
+    onClose: () => {},
     keyboardHelpers: true,
     footerComponent: () => null
   }

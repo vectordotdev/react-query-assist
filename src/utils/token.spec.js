@@ -1,7 +1,7 @@
 import test from 'ava'
 import * as token from './token'
 
-test('unit: tokenRegex', t => {
+test('tokenRegex', t => {
   t.true(token.tokenRegex().test('foo:bar'))
   t.true(token.tokenRegex().test('-foo:bar'))
   t.true(token.tokenRegex().test('foo:bar_baz.qux'))
@@ -22,11 +22,11 @@ test('unit: tokenRegex', t => {
   t.false(token.tokenRegex().test('foo:*'))
   t.false(token.tokenRegex().test('foo::'))
   t.false(token.tokenRegex().test('foo:""'))
-  // TODO: figure this out in regex if necessary
+  // TODO: figure this out in regex (necessary?)
   // t.false(token.tokenRegex().test('foo:bar:baz'))
 })
 
-test('unit: parseToken', t => {
+test('parseToken', t => {
   t.deepEqual(token.parseToken([]), {})
   t.is(token.parseToken('foo:bar').fullToken, 'foo:bar')
   t.is(token.parseToken('foo:bar').attributeName, 'foo')
@@ -43,7 +43,7 @@ test('unit: parseToken', t => {
   })
 })
 
-test('unit: serializeToken', t => {
+test('serializeToken', t => {
   t.is(token.serializeToken({
     attributeName: 'foo',
     attributeValue: 'bar',
@@ -52,7 +52,7 @@ test('unit: serializeToken', t => {
   }), '-foo:>=bar')
 })
 
-test('unit: extractTokens', t => {
+test('extractTokens', t => {
   t.deepEqual(token.extractTokens('http.method:PUT (level:error OR level:debug)'), [
     [0, 15],
     [17, 28],
