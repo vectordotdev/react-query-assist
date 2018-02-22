@@ -53,6 +53,7 @@ export default class extends Component {
       value: props.defaultValue || '',
       attributes: [],
       overlayComponents: [],
+      dropdownClosed: false,
       dropdownOpen: false,
       dropdownValue: null,
       dropdownX: null,
@@ -134,6 +135,7 @@ export default class extends Component {
 
     if (suggest) {
       this.setState({
+        dropdownClosed: false,
         dropdownOpen: true,
         dropdownValue: chunk,
         dropdownX: offsetLeft,
@@ -185,12 +187,15 @@ export default class extends Component {
     const atEndOfWord = nextCharIsEmpty &&
       /[^)\s]/.test(value.charAt(selectionStart - 1))
 
-    return !value || isNewWord || atEndOfWord
+    return !value || isNewWord ||
+      (atEndOfWord && !this.state.dropdownClosed)
   }
 
-  onClose () {
+  onClose (forWord) {
     this.setState({
-      dropdownOpen: false
+      dropdownOpen: false,
+      // don't reopen if it was closed for current word
+      dropdownClosed: forWord || false
     })
   }
 

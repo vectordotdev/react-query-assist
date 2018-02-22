@@ -104,7 +104,7 @@ export default class extends PureComponent {
 
   handleEscKey (evt) {
     evt.preventDefault()
-    this.props.onClose()
+    this.props.onClose(true)
   }
 
   handleArrowKeys (evt, keyCode) {

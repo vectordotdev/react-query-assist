@@ -96,6 +96,21 @@ test('opens at end of quoted token', t => {
   t.true(wrapper.state('dropdownOpen'))
 })
 
+test('does not reopen for word when manually closed', t => {
+  const { wrapper } = t.context
+  // opens and closes with esc key
+  wrapper.simulateTyping('lev')
+  t.true(wrapper.state('dropdownOpen'))
+  wrapper.instance().onClose(true)
+  t.false(wrapper.state('dropdownOpen'))
+  // doesn't reopen for word
+  wrapper.simulateTyping('level')
+  t.false(wrapper.state('dropdownOpen'))
+  // reopens with new word
+  wrapper.simulateTyping('level ')
+  t.true(wrapper.state('dropdownOpen'))
+})
+
 test('closes dropdown when there is no attribute match', t => {
   const { wrapper } = t.context
   wrapper.simulateTyping('foobar baz')
