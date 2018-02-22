@@ -62,12 +62,10 @@ test('addon suggestions when no enumerations', t => {
 
 test('suggests wildcard insite quotes', t => {
   const { wrapper } = t.context
-  // adds wildcard
   wrapper.setProps({ value: 'other:"foo b"' })
   t.is(wrapper.state('suggestions').length, 2)
   t.is(wrapper.state('suggestions')[0], '"foo b"')
   t.is(wrapper.state('suggestions')[1], '"foo b*"')
-  // removes wildcard
   wrapper.setProps({ value: 'other:"foo b*"' })
   t.is(wrapper.state('suggestions').length, 1)
   t.is(wrapper.state('suggestions')[0], '"foo b*"')
