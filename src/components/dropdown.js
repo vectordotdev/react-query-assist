@@ -146,21 +146,21 @@ export default class extends PureComponent {
 
     if (attribute) {
       if (
-        !parsed.quoted &&
+        !parsed.wildcard &&
+        !attribute.enumerations &&
         parsed.attributeValue &&
-        attribute.type === 'string' &&
-        (!attribute.enumerations || attribute.enumerations.length === 0)
+        attribute.type === 'string'
       ) {
         addons.push(`"${parsed.attributeValue}"`)
       }
 
       if (
-        !parsed.quoted &&
-        !parsed.wildcard &&
         parsed.attributeValue &&
         attribute.type === 'string'
       ) {
-        addons.push(`${parsed.attributeValue}*`)
+        parsed.quoted && !attribute.enumerations
+          ? addons.push(`"${parsed.attributeValue}*"`)
+          : addons.push(`${parsed.attributeValue}*`)
       }
     }
 

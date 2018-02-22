@@ -31,6 +31,8 @@ test('parseToken', t => {
   t.is(token.parseToken('foo:bar').fullToken, 'foo:bar')
   t.is(token.parseToken('foo:bar').attributeName, 'foo')
   t.true(token.parseToken('foo:bar*').wildcard)
+  t.true(token.parseToken('foo:"bar*"').wildcard)
+  t.is(token.parseToken('foo:"bar baz*"').attributeValue, 'bar baz')
   t.deepEqual(token.parseToken('-foo_bar.baz:>="qux"'), {
     fullToken: '-foo_bar.baz:>="qux"',
     attributeName: 'foo_bar.baz',

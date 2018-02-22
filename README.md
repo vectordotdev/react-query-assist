@@ -2,7 +2,6 @@
 
 [![Travis][build-badge]][build]
 [![npm package][npm-badge]][npm]
-[![Coveralls][coveralls-badge]][coveralls]
 
 A smart search bar for React that comes with built-in autocomplete and token visualization.
 
@@ -123,8 +122,5 @@ By default, [keyboard helpers](#keyboardHelpers) for the dropdown are enabled. M
 
 [npm-badge]: https://img.shields.io/npm/v/react-query-assist.png?style=flat-square
 [npm]: https://www.npmjs.org/react-query-assist
-
-[coveralls-badge]: https://img.shields.io/coveralls/timberio/react-query-assist/master.png?style=flat-square
-[coveralls]: https://coveralls.io/github/timberio/react-query-assist
 
 [demo]: demo.gif

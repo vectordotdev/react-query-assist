@@ -10,7 +10,7 @@ export function tokenRegex (opts = {}) {
     `${opts.partial ? '?' : ''}` + // assume it's a token, even with no attribute
     `:${opts.partial ? '?' : ''}` + // assume it's a token, even with no colon
     `([><=]*)` + // the operators
-    `(?:(")(.${qtfr}?)"|([^\\s()*:"]${qtfr}))` + // the attribute value, checking for quotes
+    `(?:(")(.${qtfr}?)(\\*)?"|([^\\s()*:"]${qtfr}))` + // the attribute value, checking for quotes
     `${opts.partial ? '?' : ''}` + // whether attribute value can be empty
     `(\\*)?` + // capture appended wildcard
     `(?!\\s|\\)|$)*`, // find the end of the token
@@ -30,12 +30,12 @@ export function parseToken (value, attributes = []) {
   const tokenData = {
     fullToken: results[0],
     attributeName: results[2],
-    attributeValue: results[5] || results[6],
+    attributeValue: results[5] || results[7],
     prepended: results[1] || '',
     operator: results[3],
     negated: results[0].indexOf('-') > -1,
     quoted: Boolean(results[4]),
-    wildcard: Boolean(results[7])
+    wildcard: Boolean(results[6] || results[8])
   }
 
   if (attributes) {

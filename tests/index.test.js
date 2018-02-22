@@ -87,10 +87,12 @@ test('opens at end of wildcard token', t => {
   t.true(wrapper.state('dropdownOpen'))
 })
 
-// TODO: fix this
-test.skip('opens at end of quoted token', t => {
+test('opens at end of quoted token', t => {
   const { wrapper } = t.context
   wrapper.simulateTyping('other:"foo bar"')
+  t.true(wrapper.state('dropdownOpen'))
+  // with wildcard
+  wrapper.simulateTyping('other:"foo bar*"')
   t.true(wrapper.state('dropdownOpen'))
 })
 

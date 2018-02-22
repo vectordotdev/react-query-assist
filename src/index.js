@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import PageClick from 'react-page-click'
 import { ThemeProvider } from 'styled-components'
-import { parseToken, extractTokens } from './utils/token'
+import { extractTokens } from './utils/token'
 import Dropdown from './components/dropdown'
 
 import {
@@ -185,12 +185,7 @@ export default class extends Component {
     const atEndOfWord = nextCharIsEmpty &&
       /[^)\s]/.test(value.charAt(selectionStart - 1))
 
-    // make sure we're not inside a quoted value in token
-    const parsed = parseToken(chunk)
-    const inQuotedToken = parsed.attributeValue &&
-      parsed.attributeValue.indexOf('"') > -1
-
-    return !value || isNewWord || (atEndOfWord && !inQuotedToken)
+    return !value || isNewWord || atEndOfWord
   }
 
   onClose () {
