@@ -9,8 +9,9 @@ export function tokenRegex (opts = {}) {
     `([\\w.]+)` + // the attribute name
     `${opts.partial ? '?' : ''}` + // assume it's a token, even with no attribute
     `:${opts.partial ? '?' : ''}` + // assume it's a token, even with no colon
+    `(?!:)` + // make sure colon isn't repeated
     `([><=]*)` + // the operators
-    `(?:(")(.${qtfr}?)(\\*)?"|([^\\s()*:"]${qtfr}))` + // the attribute value, checking for quotes
+    `(?:(")(.${qtfr}?)(\\*)?"|([^\\s()*"]${qtfr}))` + // the attribute value, checking for quotes
     `${opts.partial ? '?' : ''}` + // whether attribute value can be empty
     `(\\*)?` + // capture appended wildcard
     `(?!\\s|\\)|$)*`, // find the end of the token

@@ -17,13 +17,12 @@ test('tokenRegex', t => {
   t.true(token.tokenRegex().test('foo:"bar*"'))
   t.true(token.tokenRegex().test('foo:"bar baz*"'))
   t.true(token.tokenRegex().test('foo:" "'))
+  t.true(token.tokenRegex().test('foo:bar:baz'))
   t.false(token.tokenRegex().test('foo'))
   t.false(token.tokenRegex().test('foo:'))
   t.false(token.tokenRegex().test('foo:*'))
   t.false(token.tokenRegex().test('foo::'))
   t.false(token.tokenRegex().test('foo:""'))
-  // TODO: figure this out in regex (necessary?)
-  // t.false(token.tokenRegex().test('foo:bar:baz'))
 })
 
 test('parseToken', t => {
@@ -33,6 +32,7 @@ test('parseToken', t => {
   t.true(token.parseToken('foo:bar*').wildcard)
   t.true(token.parseToken('foo:"bar*"').wildcard)
   t.is(token.parseToken('foo:"bar baz*"').attributeValue, 'bar baz')
+  t.is(token.parseToken('foo:bar:baz:qux').attributeValue, 'bar:baz:qux')
   t.deepEqual(token.parseToken('-foo_bar.baz:>="qux"'), {
     fullToken: '-foo_bar.baz:>="qux"',
     attributeName: 'foo_bar.baz',
