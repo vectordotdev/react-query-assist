@@ -20,14 +20,18 @@ export const Input = styled(Textarea)`
   outline: none;
   resize: none;
   font: inherit;
-  color: inherit;
   width: 100%;
   padding: 15px 20px;
   line-height: 20px;
   white-space: pre-wrap;
   word-wrap: break-word;
+  /* we only want overlay text visible */
+  /* need to do this so caret still shows up */
+  color: inherit;
+  -webkit-text-fill-color: transparent;
   ::placeholder {
     color: ${props => props.theme.placeholderColor};
+    -webkit-text-fill-color: initial;
   }
 `
 
@@ -38,6 +42,8 @@ export const Overlay = Input.withComponent('div').extend`
   left: 0;
   right: 0;
   pointer-events: none;
+  /* reversed from Input above */
+  -webkit-text-fill-color: initial;
 `
 
 export const Inline = styled.span`
