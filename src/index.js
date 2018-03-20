@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import PageClick from 'react-page-click'
-import { ThemeProvider } from 'styled-components'
 import { extractTokens } from './utils/token'
 import Dropdown from './components/dropdown'
 
@@ -23,16 +22,20 @@ export default class extends Component {
     onSubmit: PropTypes.func,
     keyboardHelpers: PropTypes.bool,
     footerComponent: PropTypes.func,
-    inputTheme: PropTypes.object,
-    dropdownTheme: PropTypes.object
+    inputProps: PropTypes.object,
+    tokenProps: PropTypes.object,
+    dropdownProps: PropTypes.object,
+    selectorProps: PropTypes.object
   }
 
   static defaultProps = { // eslint-disable-line
     getData: () => Promise.resolve([]),
     onSubmit: console.log,
     placeholder: 'Search',
-    inputTheme: {},
-    dropdownTheme: {}
+    inputProps: {},
+    tokenProps: {},
+    dropdownProps: {},
+    selectorProps: {}
   }
 
   constructor (props) {
@@ -260,7 +263,7 @@ export default class extends Component {
 
       chunks.push(value.substring(prev[1], next[0]))
       chunks.push(
-        <Token
+        <Token {...this.props.tokenProps}
           key={`token-${next[0]}`}
           onClick={() => this.onClickToken(startIdx, endIdx)}>
           {value.substring(next[0], next[1])}
@@ -301,66 +304,43 @@ export default class extends Component {
   }
 
   render () {
-    const inputTheme = {
-      background: '#FFFFFF',
-      border: '1px solid rgba(0, 0, 0, .1)',
-      color: '#505050',
-      placeholderColor: '#D7D7D7',
-      tokenColor: '#2384FF',
-      fontFamily: '"Courier New", Courier, monospace',
-      ...this.props.inputTheme
-    }
-
-    const dropdownTheme = {
-      background: '#555555',
-      backgroundActive: '#FFFFFF',
-      borderActive: '1px solid #AAAAAA',
-      boxShadow: '0 4px 10px rgba(0, 0, 0, .25)',
-      color: '#FFFFFF',
-      colorActive: '#000000',
-      minWidth: '270px',
-      ...this.props.dropdownTheme
-    }
-
     return (
       <PageClick
         outsideOnly
         notify={this.onClose}>
         <Container
           className={this.props.className}>
-          <ThemeProvider
-            theme={inputTheme}>
-            <InputContainer>
-              <Overlay>
-                {this.state.overlayComponents}
-              </Overlay>
+          <InputContainer
+            {...this.props.inputProps}>
+            <Overlay>
+              {this.state.overlayComponents}
+            </Overlay>
 
-              <Input
-                autoComplete='off'
-                autoCorrect='off'
-                autoCapitalize='off'
-                spellCheck='false'
-                placeholder={this.props.placeholder}
-                value={this.state.value}
-                onChange={this.onChange}
-                onSelect={this.onSelect}
-                inputRef={ref => (this._input = ref)} />
-            </InputContainer>
-          </ThemeProvider>
+            <Input
+              autoComplete='off'
+              autoCorrect='off'
+              autoCapitalize='off'
+              spellCheck='false'
+              placeholder={this.props.placeholder}
+              placeholderColor={this.props.inputProps.placeholderColor}
+              value={this.state.value}
+              onChange={this.onChange}
+              onSelect={this.onSelect}
+              inputRef={ref => (this._input = ref)} />
+          </InputContainer>
 
           {this.state.dropdownOpen && !this.state.loading &&
-            <ThemeProvider
-              theme={dropdownTheme}>
-              <Dropdown
-                keyboardHelpers={this.props.keyboardHelpers}
-                footerComponent={this.props.footerComponent}
-                attributes={this.state.attributes}
-                value={this.state.dropdownValue}
-                onSelect={this.onSelectValue}
-                onClose={this.onClose}
-                offsetX={this.state.dropdownX}
-                offsetY={this.state.dropdownY} />
-            </ThemeProvider>}
+            <Dropdown
+              keyboardHelpers={this.props.keyboardHelpers}
+              footerComponent={this.props.footerComponent}
+              attributes={this.state.attributes}
+              value={this.state.dropdownValue}
+              onSelect={this.onSelectValue}
+              onClose={this.onClose}
+              offsetX={this.state.dropdownX}
+              offsetY={this.state.dropdownY}
+              dropdownProps={this.props.dropdownProps}
+              selectorProps={this.props.selectorProps} />}
         </Container>
       </PageClick>
     )

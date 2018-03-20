@@ -80,26 +80,33 @@ class Demo extends Component {
   }
 
   render () {
-    const inputTheme = {
-      background: '#393B4A',
+    const inputProps = {
+      bg: '#393B4A',
       border: '1px solid #1F1E21',
+      borderRadius: '4px',
       color: '#9FA2B2',
       placeholderColor: 'rgba(255, 255, 255, 0.2)',
-      tokenColor: '#FFFFFF',
-      borderRadius: '4px',
       fontSize: '16px',
-      fontWeight: 300
+      fontWeight: 300,
+      fontFamily: 'monospace'
     }
 
-    const dropdownTheme = {
-      background: '#808498',
-      backgroundActive: '#6554AF',
-      borderActive: '1px solid #58499B',
+    const tokenProps = {
+      color: '#FFFFFF'
+    }
+
+    const dropdownProps = {
+      bg: '#808498',
       borderRadius: '2px',
-      colorActive: '#FFFFFF',
       fontSize: '14px',
       fontWeight: 400,
       fontFamily: '-apple-system, sans-serif'
+    }
+
+    const selectorProps = {
+      bg: '#6554AF',
+      border: '1px solid #58499B',
+      color: '#FFFFFF'
     }
 
     const footer = () => (
@@ -119,8 +126,10 @@ class Demo extends Component {
           placeholder='Search Logs ⌘ ⇧ F'
           onSubmit={query => console.log(`output query: ${query}`)}
           getData={this.getData}
-          inputTheme={inputTheme}
-          dropdownTheme={dropdownTheme}
+          inputProps={inputProps}
+          tokenProps={tokenProps}
+          dropdownProps={dropdownProps}
+          selectorProps={selectorProps}
           footerComponent={footer} />
 
         <Title>Complex Query Example</Title>
@@ -129,8 +138,10 @@ class Demo extends Component {
           defaultValue={`keyword1 (level:error AND heroku.source:"foo bar") keyword2 http.method:POST\n\t(-level:info OR http_response.status:>=400)\nkeyword3 invalid:token heroku.dyno_id:abc*`}
           onSubmit={query => console.log(`output query: ${query}`)}
           getData={this.getData}
-          inputTheme={inputTheme}
-          dropdownTheme={dropdownTheme}
+          inputProps={inputProps}
+          tokenProps={tokenProps}
+          dropdownProps={dropdownProps}
+          selectorProps={selectorProps}
           footerComponent={footer} />
       </Container>
     )

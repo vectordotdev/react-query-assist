@@ -1,5 +1,21 @@
 import styled, { keyframes } from 'styled-components'
 
+import {
+  top,
+  left,
+  color,
+  boxShadow,
+  borderRadius,
+  space,
+  width,
+  border,
+  fontSize,
+  fontWeight,
+  fontFamily,
+  lineHeight,
+  letterSpacing
+} from 'styled-system'
+
 export const swingDown = keyframes`
   0% {
     opacity: 0;
@@ -11,18 +27,34 @@ export const swingDown = keyframes`
   }
 `
 
-export const Container = styled.aside.attrs({
-  style: props => props.theme
-})`
+export const Container = styled.aside`
   display: inline-block;
   position: absolute;
-  top: ${props => props.top}px;
-  left: ${props => props.left}px;
   z-index: 10;
   transform-origin: 50% 0;
   animation: ${swingDown} ease-in-out 250ms;
   transition: all 100ms;
+
+  ${top}
+  ${left}
+  ${color}
+  ${boxShadow}
+  ${borderRadius}
+  ${space}
+  ${width}
+  ${fontSize}
+  ${fontWeight}
+  ${fontFamily}
+  ${lineHeight}
+  ${letterSpacing}
 `
+
+Container.defaultProps = {
+  bg: '#555555',
+  boxShadow: '0 4px 10px rgba(0, 0, 0, .25)',
+  color: '#FFFFFF',
+  minWidth: '270px'
+}
 
 export const Section = styled.section`
   padding: 15px;
@@ -39,12 +71,20 @@ export const Suggestions = styled.ul`
 `
 
 export const Suggestion = styled.li`
-  background: ${props => props.active ? props.theme.backgroundActive : 'none'};
-  border: ${props => props.active ? props.theme.borderActive : '1px solid transparent'};
-  color: ${props => props.active ? props.theme.colorActive : 'inherit'};
-  padding: 3px 15px;
   cursor: pointer;
+  border: 1px solid transparent;
+
+  ${space}
+  ${props => props.active && color}
+  ${props => props.active && border}
 `
+
+Suggestion.defaultProps = {
+  bg: '#FFFFFF',
+  border: '1px solid #AAAAAA',
+  color: '#000000',
+  p: '3px 15px'
+}
 
 export const Operators = Section.extend`
   padding: 15px 0;

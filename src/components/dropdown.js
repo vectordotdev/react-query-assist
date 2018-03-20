@@ -24,7 +24,9 @@ export default class extends PureComponent {
     offsetX: PropTypes.number,
     offsetY: PropTypes.number,
     keyboardHelpers: PropTypes.bool,
-    footerComponent: PropTypes.func
+    footerComponent: PropTypes.func,
+    dropdownProps: PropTypes.object,
+    selectorProps: PropTypes.object
   }
 
   static defaultProps = { // eslint-disable-line
@@ -257,16 +259,24 @@ export default class extends PureComponent {
     return (
       <Container
         left={this.props.offsetX || 0}
-        top={this.props.offsetY || 0}>
+        top={this.props.offsetY || 0}
+        {...this.props.dropdownProps}>
         <Suggestions>
-          {this.state.suggestions.map((suggestion, key) =>
-            <Suggestion
-              key={key}
-              active={this.state.highlightedIdx === key}
-              onClick={this.acceptSuggestion}
-              onMouseOver={() => this.setState({ highlightedIdx: key })}>
-              {suggestion}
-            </Suggestion>)}
+          {this.state.suggestions.map((suggestion, key) => {
+            const isActive = this.state.highlightedIdx === key
+            const extraProps = isActive ? this.props.selectorProps : {}
+
+            return (
+              <Suggestion
+                key={key}
+                active={isActive}
+                onClick={this.acceptSuggestion}
+                onMouseOver={() => this.setState({ highlightedIdx: key })}
+                {...extraProps}>
+                {suggestion}
+              </Suggestion>
+            )
+          })}
         </Suggestions>
 
         <Operators>
