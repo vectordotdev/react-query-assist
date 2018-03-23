@@ -41,15 +41,15 @@
     "react": "16.x"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0-beta.40",
-    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.40",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.40",
-    "@babel/polyfill": "^7.0.0-beta.40",
-    "@babel/preset-env": "^7.0.0-beta.40",
-    "@babel/preset-react": "^7.0.0-beta.40",
-    "@babel/register": "^7.0.0-beta.40",
+    "@babel/core": "^7.0.0-beta.42",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.42",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.42",
+    "@babel/polyfill": "^7.0.0-beta.42",
+    "@babel/preset-env": "^7.0.0-beta.42",
+    "@babel/preset-react": "^7.0.0-beta.42",
+    "@babel/register": "^7.0.0-beta.42",
     "ava": "^1.0.0-beta.3",
-    "babel-eslint": "^8.2.1",
+    "babel-eslint": "^8.2.2",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "jsdom": "^11.6.2",
@@ -57,17 +57,17 @@
     "nwb": "0.21.x",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "sinon": "^4.3.0",
-    "snazzy": "^7.0.0",
-    "standard": "^11.0.0"
+    "sinon": "^4.4.8",
+    "snazzy": "^7.1.1",
+    "standard": "^11.0.1"
   },
   "dependencies": {
     "clean-element": "^1.0.0",
     "escape-string-regexp": "^1.0.5",
-    "prop-types": "^15.6.0",
+    "prop-types": "^15.6.1",
     "react-page-click": "^4.0.2",
     "react-textarea-autosize": "^6.0.0",
-    "styled-components": "^3.1.6",
+    "styled-components": "^3.2.3",
     "styled-system": "^2.2.1"
   },
   "babel": {
