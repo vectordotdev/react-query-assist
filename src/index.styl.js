@@ -1,13 +1,16 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import Textarea from 'react-textarea-autosize'
 import clean from 'clean-element'
 
 import {
+  style,
   propTypes,
+
   space,
   width,
   color,
   borders,
+  borderColor,
   borderRadius,
   boxShadow,
   fontSize,
@@ -29,6 +32,7 @@ export const InputContainer = styled.div`
   ${space}
   ${width}
   ${borders}
+  ${borderColor}
   ${borderRadius}
   ${boxShadow}
   ${color}
@@ -44,16 +48,22 @@ InputContainer.defaultProps = {
   bg: '#FFFFFF',
   color: '#505050',
   border: '1px solid rgba(0, 0, 0, .1)',
-  fontFamily: 'monospace',
-  lineHeight: '20px'
+  fontFamily: 'monospace'
 }
 
 const CleanInput = clean(Textarea)
 
 CleanInput.propTypes = {
   placeholderColor: propTypes.color.color,
+  ...propTypes.lineHeight,
   ...propTypes.borderRadius
 }
+
+const placeholderColor = style({
+  prop: 'placeholderColor',
+  cssProperty: 'color',
+  key: 'colors'
+})
 
 export const Input = styled(CleanInput)`
   display: block;
@@ -63,7 +73,7 @@ export const Input = styled(CleanInput)`
   resize: none;
   font: inherit;
   width: 100%;
-  padding: 15px 20px;
+  padding: 0;
   white-space: pre-wrap;
   word-wrap: break-word;
   /* we only want overlay text visible */
@@ -71,12 +81,13 @@ export const Input = styled(CleanInput)`
   color: inherit;
   -webkit-text-fill-color: transparent;
   ::placeholder {
-    color: ${props => props.placeholderColor};
+    ${placeholderColor}
     -webkit-text-fill-color: initial;
   }
 `
 
 Input.defaultProps = {
+  lineHeight: '1.1rem',
   placeholderColor: '#D7D7D7'
 }
 
@@ -87,27 +98,44 @@ export const Overlay = Input.withComponent('div').extend`
   left: 0;
   right: 0;
   pointer-events: none;
-  color: inherit;
+  padding: inherit;
+
+  ${props => props.collapsed && css`
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  `}
+
   /* reversed from Input above */
   -webkit-text-fill-color: initial;
 `
 
 export const Inline = styled.span`
   font: inherit;
-  line-height: 20px;
 `
 
+const tokenColor = style({
+  prop: 'tokenColor',
+  cssProperty: 'color',
+  key: 'colors'
+})
+
+const tokenUnderline = style({
+  prop: 'tokenColor',
+  cssProperty: 'backgroundColor',
+  key: 'colors'
+})
+
 export const Token = Inline.extend`
-  font-weight: 500;
+  position: relative;
   cursor: pointer;
   pointer-events: auto;
-  position: relative;
+  font-weight: 500;
 
-  ${color}
+  ${tokenColor}
 
   &:after {
     content: '';
-    background: ${props => props.color};
     position: absolute;
     top: 100%;
     left: 0;
@@ -116,6 +144,8 @@ export const Token = Inline.extend`
     opacity: 0;
     transform: translateY(3px);
     transition: all 150ms;
+
+    ${tokenUnderline}
   }
   &:hover:after {
     opacity: 1;
@@ -124,5 +154,5 @@ export const Token = Inline.extend`
 `
 
 Token.defaultProps = {
-  color: '#2384FF'
+  tokenColor: '#2384FF'
 }

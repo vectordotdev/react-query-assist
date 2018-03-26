@@ -5,10 +5,14 @@ import {
   left,
   color,
   boxShadow,
+  borders,
+  borderColor,
   borderRadius,
   space,
   width,
-  border,
+  minWidth,
+  maxWidth,
+  maxHeight,
   fontSize,
   fontWeight,
   fontFamily,
@@ -33,15 +37,18 @@ export const Container = styled.aside`
   z-index: 10;
   transform-origin: 50% 0;
   animation: ${swingDown} ease-in-out 250ms;
-  transition: all 100ms;
+  transition: top 100ms, left 100ms;
 
   ${top}
   ${left}
   ${color}
   ${boxShadow}
+  ${borders}
+  ${borderColor}
   ${borderRadius}
   ${space}
   ${width}
+  ${minWidth}
   ${fontSize}
   ${fontWeight}
   ${fontFamily}
@@ -53,7 +60,7 @@ Container.defaultProps = {
   bg: '#555555',
   boxShadow: '0 4px 10px rgba(0, 0, 0, .25)',
   color: '#FFFFFF',
-  minWidth: '270px'
+  minWidth: '280px'
 }
 
 export const Section = styled.section`
@@ -68,22 +75,34 @@ export const Suggestions = styled.ul`
   list-style-type: none;
   line-height: 20px;
   margin: 10px 0;
+  overflow: auto;
+
+  ${maxHeight}
 `
+
+Suggestions.defaultProps = {
+  maxHeight: '200px'
+}
 
 export const Suggestion = styled.li`
   cursor: pointer;
   border: 1px solid transparent;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   ${space}
+  ${maxWidth}
+
   ${props => props.active && color}
-  ${props => props.active && border}
+  ${props => props.active && borders}
+  ${props => props.active && borderColor}
 `
 
 Suggestion.defaultProps = {
   bg: '#FFFFFF',
-  border: '1px solid #AAAAAA',
   color: '#000000',
-  p: '3px 15px'
+  p: '3px 15px',
+  maxWidth: '320px'
 }
 
 export const Operators = Section.extend`

@@ -4,12 +4,9 @@ import { mount } from 'enzyme'
 import { mockAttributes } from './helpers'
 import QueryAssist from '../src'
 
-test.beforeEach(async t => {
-  const data = Promise.resolve(mockAttributes)
-
+test.beforeEach(t => {
   t.context.wrapper = mount(
-    <QueryAssist
-      getData={() => data} />
+    <QueryAssist data={mockAttributes} />
   )
 
   // simulate typing in textarea field
@@ -21,13 +18,10 @@ test.beforeEach(async t => {
     textarea.getDOMNode().setSelectionRange(newPos, newPos)
     textarea.simulate('select')
   }
-
-  await data
 })
 
 test('closed at start', t => {
   const { wrapper } = t.context
-  t.false(wrapper.state('loading'))
   t.deepEqual(wrapper.state('attributes'), mockAttributes)
   t.is(wrapper.state('overlayComponents').length, 2)
   t.false(wrapper.state('dropdownOpen'))
@@ -157,3 +151,12 @@ test('alters existing token in query with parens', t => {
 // figure out how to test dropdown position,
 // jsdom doesn't currently support node.offsetLeft?
 test.todo('integration: dropdown location')
+
+// make sure they all get implemented correctly
+test.todo('custom styles with styled-system props')
+
+test.todo('defaultValue changes')
+test.todo('listening to changes with onChange')
+test.todo('textarea collapses on blur')
+test.todo('passing in nameKey')
+test.todo('adjusting scroll when using arrow keys')

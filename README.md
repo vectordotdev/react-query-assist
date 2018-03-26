@@ -15,26 +15,26 @@ A token is a key-value in a search query that contains an attribute and a value 
 ## Getting Started
 
 ```bash
-$ npm install -S react-query-assist
+$ npm install -S react-query-assist styled-components
 ```
+
+> `styled-components` is a peer dependency of this library to allow for easy custom styling.
 
 ```javascript
 import QueryAssist from 'react-query-assist'
 
-async function getData () {
-  return [
-    {
-      name: 'some_attribute',
-      type: 'string',
-      enumerations: ['enum1', 'enum2', 'enum3' /* ... */ ]
-    }
-  ]
-}
+const data = [
+  {
+    name: 'some_attribute',
+    type: 'string',
+    enumerations: ['enum1', 'enum2', 'enum3' /* ... */ ]
+  }
+]
 
 export default function () {
   return (
     <QueryAssist
-      getData={getData}
+      data={data}
       onSubmit={console.log} />
   )
 }
@@ -43,7 +43,7 @@ export default function () {
 <a name="autocomplete"></a>
 ## Autocomplete Data
 
-The [getData prop](#getData) should resolve with the full list of autocomplete values. This only gets called once when the assist is mounted. The data structure should be an array of attributes, and each attribute should have a name, type and enumerations for possible values:
+The [data prop](#data) should have the full list of autocomplete values. The data structure should be an array of attributes, and each attribute should have a name, type and enumerations of available values:
 
 ```
 [
@@ -90,10 +90,14 @@ Each token in the query can have a number of operators, depending on the data ty
 <a name="themes"></a>
 ## Themes
 
-The default styling is intentionally neutral so you can customize the look based on your own style guide. You can add custom styling to both the input field and the dropdown by using the [inputTheme](#inputTheme) and [dropdownTheme](#dropdownTheme) props. These objects will be passed as styles to the components, so you can use any style attribute along with a few extras:
+The default styling is intentionally neutral so you can customize the look based on your own style guide. You can add custom styling to each specific element by using the [inputProps](#inputProps), [dropdownProps](#dropdownProps), [selectorProps](#selectorProps) and [listProps](#listProps) props. These objects will be merged into the props of each component. See the documentation for [styled-system](https://github.com/jxnblk/styled-system) on how to customize styles with props.
 
-- For inputTheme, you can set `tokenColor` to determine the highlight color of the tokens, and `placeholderColor` to determine the color of the placeholder text.
-- For dropdownTheme, you can set `backgroundActive`, `borderActive` and `colorActive` to determine the style of the currently highlighted autocomplete value.
+##### Input Prop Extras
+
+A few extra props are accepted for further styling on `inputProps`:
+
+- `placeholderColor` The placeholder text color for the input field
+- `tokenColor` The highlight color of the valid tokens
 
 ## Keyboard
 
@@ -107,13 +111,18 @@ By default, [keyboard helpers](#keyboardHelpers) for the dropdown are enabled. M
 
 | Prop Name  | Prop Type | Description | Default Value |
 | -----------| --------- | ----------- | ------------- |
-| <a name="getData"></a>`getData` | function | Should return a promise that resolves with the [autocomplete data](#autocomplete). Only gets called once when the assist is mounted in the DOM. | - |
+| <a name="data"></a>`data` | object | Should return an array with the [autocomplete data](#autocomplete). | - |
+| `onChange` | function | Called with the updated value when the input changes. | - |
 | `onSubmit` | function | Called with the final value of the query when the enter key is pressed. *Pressing enter will submit the query, but shift+enter will create a new line.* | - |
 | `defaultValue` | string | The default value to pass to the input component. Will parse this value when mounted for any existing tokens. | - |
+| `nameKey` | string | The key to use for the attribute name in the data object. | `name` |
 | `placeholder` | string | The placeholder text to use for the input field. | `Search` |
+| `collapseOnBlur` | boolean | The input field automatically expands to fit the text, but if this is `true`, will collapse to one line when it is not in focus. | - |
 | <a name="keyboardHelpers"></a>`keyboardHelpers` | boolean | Whether to enable the keyboard helpers for the dropdown. | `true` |
-| <a name="inputTheme"></a>`inputTheme` | object | The styles to use for the input component. See the [themes](#themes) section. | - |
-| <a name="dropdownTheme"></a>`dropdownTheme` | object | The styles to use for the dropdown component. See the [themes](#themes) section. | - |
+| <a name="inputProps"></a>`inputProps` | object | The props to use for the input component. See the [themes](#themes) section. | - |
+| <a name="dropdownProps"></a>`dropdownProps` | object | The props to use for the dropdown component. See the [themes](#themes) section. | - |
+| <a name="selectorProps"></a>`selectorProps` | object | The props to use for the dropdown selector component. See the [themes](#themes) section. | - |
+| <a name="listProps"></a>`listProps` | object | The props to use for the dropdown list component. See the [themes](#themes) section. | - |
 | `footerComponent` | function | Optionally append a footer component to the dropdown. Useful for adding a link to search documentation, etc. | - |
 | `debug` | boolean | Enables styling useful for debugging. | `false` |
 

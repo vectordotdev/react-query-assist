@@ -6,7 +6,7 @@ export function tokenRegex (opts = {}) {
   return new RegExp(
     `(?!^|\\(|\\s)*` + // find beginning of token
     `([-]+)?` + // capture prepended negation character
-    `([\\w.]+)` + // the attribute name
+    `([\\w.$]+)` + // the attribute name
     `${opts.partial ? '?' : ''}` + // assume it's a token, even with no attribute
     `:${opts.partial ? '?' : ''}` + // assume it's a token, even with no colon
     `(?!:)` + // make sure colon isn't repeated
@@ -19,7 +19,7 @@ export function tokenRegex (opts = {}) {
   )
 }
 
-export function parseToken (value, attributes = []) {
+export function parseToken (value, attributes = [], nameKey) {
   const results = Array.isArray(value)
     ? value
     : tokenRegex({ partial: true }).exec(value)
@@ -41,7 +41,7 @@ export function parseToken (value, attributes = []) {
 
   if (attributes) {
     const attribute = attributes
-      .find(({ name }) => compare(name, tokenData.attributeName))
+      .find(attr => compare(attr[nameKey], tokenData.attributeName))
 
     if (attribute) {
       tokenData.attributeNameValid = true
@@ -68,14 +68,14 @@ export function serializeToken (token) {
   return `${prepended}${attributeName}:${operator}${attributeValue}`
 }
 
-export function extractTokens (value, attributes) {
+export function extractTokens (value, attributes, nameKey) {
   const positions = []
   const regex = tokenRegex()
 
   let result
   while ((result = regex.exec(value)) !== null) {
     if (attributes) {
-      const parsed = parseToken(result, attributes)
+      const parsed = parseToken(result, attributes, nameKey)
 
       if (!parsed.attributeNameValid || !parsed.attributeValueValid) {
         continue

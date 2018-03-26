@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
+import { compareFuzzy } from '../utils/compare'
 import { parseToken, serializeToken } from '../utils/token'
 
 import {
@@ -18,6 +19,7 @@ import {
 export default class extends PureComponent {
   static propTypes = { // eslint-disable-line
     value: PropTypes.string,
+    nameKey: PropTypes.string,
     attributes: PropTypes.array,
     onSelect: PropTypes.func,
     onClose: PropTypes.func,
@@ -26,11 +28,13 @@ export default class extends PureComponent {
     keyboardHelpers: PropTypes.bool,
     footerComponent: PropTypes.func,
     dropdownProps: PropTypes.object,
-    selectorProps: PropTypes.object
+    selectorProps: PropTypes.object,
+    listProps: PropTypes.object
   }
 
   static defaultProps = { // eslint-disable-line
     value: '',
+    nameKey: 'name',
     onSelect: () => {},
     onClose: () => {},
     keyboardHelpers: true,
@@ -43,6 +47,7 @@ export default class extends PureComponent {
     this.handleEnterKey = this.handleEnterKey.bind(this)
     this.handleEscKey = this.handleEscKey.bind(this)
     this.handleArrowKeys = this.handleArrowKeys.bind(this)
+    this.adjustListScroll = this.adjustListScroll.bind(this)
     this.getAttribute = this.getAttribute.bind(this)
     this.getSuggestions = this.getSuggestions.bind(this)
     this.getSuggestionAddons = this.getSuggestionAddons.bind(this)
@@ -128,7 +133,29 @@ export default class extends PureComponent {
       highlightedIdx: isDownKey
         ? newIdx <= max ? newIdx : 0
         : newIdx >= 0 ? newIdx : max
-    })
+    }, this.adjustListScroll)
+  }
+
+  adjustListScroll () {
+    const {
+      offsetTop,
+      clientHeight: selectorHeight
+    } = this._selected
+
+    const {
+      scrollTop,
+      clientHeight: listHeight
+    } = this._list
+
+    const topWaypoint = selectorHeight
+    const bottomWaypoint = listHeight - selectorHeight
+    const position = offsetTop - scrollTop
+
+    if (position > bottomWaypoint) {
+      this._list.scrollTop += selectorHeight + (position - bottomWaypoint)
+    } else if (position < topWaypoint) {
+      this._list.scrollTop = offsetTop - selectorHeight + (position - topWaypoint)
+    }
   }
 
   getAttribute (selectedIdx) {
@@ -138,9 +165,14 @@ export default class extends PureComponent {
   }
 
   getSuggestions (attribute) {
+    const {
+      nameKey,
+      attributes
+    } = this.props
+
     return attribute
       ? attribute.enumerations || []
-      : this.props.attributes.map(({ name }) => name)
+      : attributes.map(attr => attr[nameKey])
   }
 
   getSuggestionAddons (attribute, parsed) {
@@ -170,18 +202,23 @@ export default class extends PureComponent {
   }
 
   filterSuggestions (value) {
-    const parsed = parseToken(value)
+    const {
+      nameKey,
+      attributes
+    } = this.props
+
+    const parsed = parseToken(value, null, nameKey)
 
     const hasAttributeName = parsed.attributeName && value.indexOf(':') > -1
-    const selectedIdx = hasAttributeName ? this.props.attributes
-      .findIndex(({ name }) => name === parsed.attributeName) : -1
+    const selectedIdx = hasAttributeName ? attributes
+      .findIndex(attr => attr[nameKey] === parsed.attributeName) : -1
 
     const attribute = this.getAttribute(selectedIdx)
     const suggestions = this.getSuggestions(attribute)
     const searchValue = selectedIdx > -1 ? parsed.attributeValue : parsed.attributeName
 
     const filtered = suggestions
-      .filter(v => new RegExp(escape(searchValue || ''), 'i').test(v))
+      .filter(v => compareFuzzy(searchValue, v))
       .concat(this.getSuggestionAddons(attribute, parsed))
 
     this.setState({
@@ -196,6 +233,11 @@ export default class extends PureComponent {
 
   acceptSuggestion () {
     const {
+      nameKey,
+      onSelect
+    } = this.props
+
+    const {
       suggestions,
       highlightedIdx,
       selectedIdx,
@@ -207,11 +249,11 @@ export default class extends PureComponent {
     const suggestion = suggestions[highlightedIdx]
 
     const newValue = attribute
-      ? `${attribute.name}:${operator}${suggestion}`
+      ? `${attribute[nameKey]}:${operator}${suggestion}`
       : suggestion
 
     const appended = selectedIdx === -1 ? ':' : ' '
-    this.props.onSelect(`${prepended}${newValue}`, appended)
+    onSelect(`${prepended}${newValue}`, appended)
   }
 
   getOperators () {
@@ -234,7 +276,11 @@ export default class extends PureComponent {
   }
 
   setOperator (newOperator) {
-    const { value } = this.props
+    const {
+      value,
+      nameKey
+    } = this.props
+
     const {
       negated,
       operator
@@ -246,7 +292,7 @@ export default class extends PureComponent {
 
       this.props.onSelect(newValue)
     } else {
-      const token = parseToken(value)
+      const token = parseToken(value, null, nameKey)
       token.operator = operator === newOperator ? '' : newOperator
 
       this.props.onSelect(serializeToken(token))
@@ -261,10 +307,11 @@ export default class extends PureComponent {
         left={this.props.offsetX || 0}
         top={this.props.offsetY || 0}
         {...this.props.dropdownProps}>
-        <Suggestions>
+        <Suggestions
+          {...this.props.listProps}
+          innerRef={ref => (this._list = ref)}>
           {this.state.suggestions.map((suggestion, key) => {
             const isActive = this.state.highlightedIdx === key
-            const extraProps = isActive ? this.props.selectorProps : {}
 
             return (
               <Suggestion
@@ -272,7 +319,8 @@ export default class extends PureComponent {
                 active={isActive}
                 onClick={this.acceptSuggestion}
                 onMouseOver={() => this.setState({ highlightedIdx: key })}
-                {...extraProps}>
+                innerRef={isActive ? ref => (this._selected = ref) : undefined}
+                {...this.props.selectorProps}>
                 {suggestion}
               </Suggestion>
             )
