@@ -46,60 +46,62 @@ export const Link = styled.a`
   cursor: pointer;
 `
 
-class Demo extends Component {
-  async getData () {
-    await new Promise(resolve => setTimeout(resolve, 100))
-
-    return [
-      {
-        name: 'level',
-        type: 'string',
-        enumerations: ['info', 'error', 'warn', 'debug', 'critical']
-      },
-      {
-        name: 'http.method',
-        type: 'string',
-        enumerations: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
-      },
-      {
-        name: 'http_response.status',
-        type: 'int',
-        enumerations: [200, 400, 404, 500]
-      },
-      {
-        name: 'heroku.dyno_id',
-        type: 'string',
-        enumerations: null
-      },
-      {
-        name: 'heroku.source',
-        type: 'string',
-        enumerations: null
-      }
-    ]
+const data = [
+  {
+    name: 'level',
+    type: 'string',
+    enumerations: ['info', 'error', 'warn', 'debug', 'critical']
+  },
+  {
+    name: 'http.method',
+    type: 'string',
+    enumerations: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+  },
+  {
+    name: 'http_response.status',
+    type: 'int',
+    enumerations: [200, 400, 404, 500]
+  },
+  {
+    name: 'heroku.dyno_id',
+    type: 'string',
+    enumerations: null
+  },
+  {
+    name: 'heroku.source',
+    type: 'string',
+    enumerations: null
   }
+]
 
+class Demo extends Component {
   render () {
-    const inputTheme = {
-      background: '#393B4A',
+    const inputProps = {
+      bg: '#393B4A',
       border: '1px solid #1F1E21',
+      borderRadius: '4px',
       color: '#9FA2B2',
       placeholderColor: 'rgba(255, 255, 255, 0.2)',
       tokenColor: '#FFFFFF',
-      borderRadius: '4px',
       fontSize: '16px',
-      fontWeight: 300
+      fontWeight: 300,
+      fontFamily: 'monospace',
+      lineHeight: '20px',
+      p: '15px 20px'
     }
 
-    const dropdownTheme = {
-      background: '#808498',
-      backgroundActive: '#6554AF',
-      borderActive: '1px solid #58499B',
+    const dropdownProps = {
+      bg: '#808498',
       borderRadius: '2px',
-      colorActive: '#FFFFFF',
       fontSize: '14px',
       fontWeight: 400,
       fontFamily: '-apple-system, sans-serif'
+    }
+
+    const selectorProps = {
+      bg: '#6554AF',
+      border: '1px solid #58499B',
+      color: '#FFFFFF'
     }
 
     const footer = () => (
@@ -118,9 +120,10 @@ class Demo extends Component {
         <Assist
           placeholder='Search Logs ⌘ ⇧ F'
           onSubmit={query => console.log(`output query: ${query}`)}
-          getData={this.getData}
-          inputTheme={inputTheme}
-          dropdownTheme={dropdownTheme}
+          data={data}
+          inputProps={inputProps}
+          dropdownProps={dropdownProps}
+          selectorProps={selectorProps}
           footerComponent={footer} />
 
         <Title>Complex Query Example</Title>
@@ -128,9 +131,10 @@ class Demo extends Component {
           placeholder='Search Logs ⌘ ⇧ F'
           defaultValue={`keyword1 (level:error AND heroku.source:"foo bar") keyword2 http.method:POST\n\t(-level:info OR http_response.status:>=400)\nkeyword3 invalid:token heroku.dyno_id:abc*`}
           onSubmit={query => console.log(`output query: ${query}`)}
-          getData={this.getData}
-          inputTheme={inputTheme}
-          dropdownTheme={dropdownTheme}
+          data={data}
+          inputProps={inputProps}
+          dropdownProps={dropdownProps}
+          selectorProps={selectorProps}
           footerComponent={footer} />
       </Container>
     )

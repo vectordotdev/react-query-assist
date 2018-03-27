@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import PageClick from 'react-page-click'
-import { ThemeProvider } from 'styled-components'
 import { extractTokens } from './utils/token'
 import Dropdown from './components/dropdown'
 
@@ -17,28 +16,40 @@ import {
 export default class extends Component {
   static propTypes = { // eslint-disable-line
     debug: PropTypes.bool,
+    data: PropTypes.array,
+    nameKey: PropTypes.string,
     defaultValue: PropTypes.string,
     placeholder: PropTypes.string,
-    getData: PropTypes.func,
+    onChange: PropTypes.func,
     onSubmit: PropTypes.func,
     keyboardHelpers: PropTypes.bool,
+    collapseOnBlur: PropTypes.bool,
     footerComponent: PropTypes.func,
-    inputTheme: PropTypes.object,
-    dropdownTheme: PropTypes.object
+    inputProps: PropTypes.object,
+    dropdownProps: PropTypes.object,
+    selectorProps: PropTypes.object,
+    listProps: PropTypes.object
   }
 
   static defaultProps = { // eslint-disable-line
-    getData: () => Promise.resolve([]),
-    onSubmit: console.log,
+    data: [],
+    nameKey: 'name',
+    defaultValue: '',
+    onChange: () => {},
+    onSubmit: () => {},
     placeholder: 'Search',
-    inputTheme: {},
-    dropdownTheme: {}
+    inputProps: {},
+    dropdownProps: {},
+    selectorProps: {},
+    listProps: {}
   }
 
   constructor (props) {
     super(props)
     this.keydown = this.keydown.bind(this)
     this.handleEnterKey = this.handleEnterKey.bind(this)
+    this.onFocus = this.onFocus.bind(this)
+    this.onBlur = this.onBlur.bind(this)
     this.onChange = this.onChange.bind(this)
     this.onSelect = this.onSelect.bind(this)
     this.onAutosuggest = this.onAutosuggest.bind(this)
@@ -46,12 +57,13 @@ export default class extends Component {
     this.shouldAutosuggest = this.shouldAutosuggest.bind(this)
     this.onClose = this.onClose.bind(this)
     this.onClickToken = this.onClickToken.bind(this)
+    this.extract = this.extract.bind(this)
     this.getCurrentChunk = this.getCurrentChunk.bind(this)
     this.buildOverlay = this.buildOverlay.bind(this)
     this.state = {
-      loading: true,
-      value: props.defaultValue || '',
-      attributes: [],
+      focused: false,
+      value: props.defaultValue,
+      attributes: props.data,
       overlayComponents: [],
       dropdownClosed: false,
       dropdownOpen: false,
@@ -64,9 +76,9 @@ export default class extends Component {
   componentDidMount () {
     document.addEventListener('keydown', this.keydown, false)
 
-    this.props.getData()
-      .then(res => this.setState({ attributes: res, loading: false }))
-      .catch(err => console.error('Error while getting data:', err))
+    this.setState({
+      overlayComponents: this.buildOverlay(this.state.value)
+    })
   }
 
   componentWillUnmount () {
@@ -79,6 +91,10 @@ export default class extends Component {
       attributes
     } = this.state
 
+    if (value !== prevState.value) {
+      this.props.onChange(value)
+    }
+
     if (
       value !== prevState.value ||
       attributes.length !== prevState.attributes.length
@@ -87,6 +103,20 @@ export default class extends Component {
         overlayComponents: this.buildOverlay(value)
       })
     }
+  }
+
+  componentWillReceiveProps (nextProps) {
+    const newState = {}
+
+    if (nextProps.defaultValue !== undefined) {
+      newState.value = nextProps.defaultValue
+    }
+
+    if (nextProps.data) {
+      newState.attributes = nextProps.data
+    }
+
+    this.setState(newState)
   }
 
   keydown (evt) {
@@ -107,6 +137,18 @@ export default class extends Component {
       evt.preventDefault()
       this.props.onSubmit(this.state.value)
     }
+  }
+
+  onFocus (evt) {
+    this.setState({
+      focused: true
+    })
+  }
+
+  onBlur (evt) {
+    this.setState({
+      focused: false
+    })
   }
 
   onChange (evt) {
@@ -205,13 +247,20 @@ export default class extends Component {
     this._input.setSelectionRange(end, end)
   }
 
+  extract (value) {
+    const { nameKey } = this.props
+    const { attributes } = this.state
+
+    return extractTokens(value, attributes, nameKey)
+  }
+
   getCurrentChunk (value) {
     const {
       selectionStart
     } = this._input
 
     // get location of each token found in value
-    const tokens = extractTokens(value, this.state.attributes)
+    const tokens = this.extract(value)
 
     // find index of the closest previous whitespace
     const prevStr = value.substring(0, selectionStart)
@@ -251,7 +300,7 @@ export default class extends Component {
 
   buildTokens (value, relativeToIdx = 0) {
     const chunks = []
-    const positions = extractTokens(value, this.state.attributes)
+    const positions = this.extract(value)
 
     let currentPosition = 0
     positions.reduce((prev, next) => {
@@ -262,6 +311,7 @@ export default class extends Component {
       chunks.push(
         <Token
           key={`token-${next[0]}`}
+          tokenColor={this.props.inputProps.tokenColor}
           onClick={() => this.onClickToken(startIdx, endIdx)}>
           {value.substring(next[0], next[1])}
         </Token>
@@ -301,66 +351,76 @@ export default class extends Component {
   }
 
   render () {
-    const inputTheme = {
-      background: '#FFFFFF',
-      border: '1px solid rgba(0, 0, 0, .1)',
-      color: '#505050',
-      placeholderColor: '#D7D7D7',
-      tokenColor: '#2384FF',
-      fontFamily: '"Courier New", Courier, monospace',
-      ...this.props.inputTheme
-    }
+    const {
+      nameKey,
+      className,
+      inputProps,
+      placeholder,
+      keyboardHelpers,
+      collapseOnBlur,
+      footerComponent,
+      dropdownProps,
+      selectorProps,
+      listProps
+    } = this.props
 
-    const dropdownTheme = {
-      background: '#555555',
-      backgroundActive: '#FFFFFF',
-      borderActive: '1px solid #AAAAAA',
-      boxShadow: '0 4px 10px rgba(0, 0, 0, .25)',
-      color: '#FFFFFF',
-      colorActive: '#000000',
-      minWidth: '270px',
-      ...this.props.dropdownTheme
-    }
+    const {
+      value,
+      attributes,
+      dropdownOpen,
+      dropdownValue,
+      dropdownX,
+      dropdownY,
+      overlayComponents
+    } = this.state
+
+    const collapsed = !this.state.focused && collapseOnBlur
 
     return (
       <PageClick
         outsideOnly
         notify={this.onClose}>
         <Container
-          className={this.props.className}>
-          <ThemeProvider
-            theme={inputTheme}>
-            <InputContainer>
-              <Overlay>
-                {this.state.overlayComponents}
-              </Overlay>
+          className={className}>
+          <InputContainer
+            {...inputProps}
+            onClick={() => this._input.focus()}>
+            <Overlay
+              collapsed={collapsed}>
+              {overlayComponents}
+            </Overlay>
 
-              <Input
-                autoComplete='off'
-                autoCorrect='off'
-                autoCapitalize='off'
-                spellCheck='false'
-                placeholder={this.props.placeholder}
-                value={this.state.value}
-                onChange={this.onChange}
-                onSelect={this.onSelect}
-                inputRef={ref => (this._input = ref)} />
-            </InputContainer>
-          </ThemeProvider>
+            <Input
+              autoComplete='off'
+              autoCorrect='off'
+              autoCapitalize='off'
+              spellCheck='false'
+              autoFocus={inputProps.autoFocus}
+              maxRows={collapsed ? 1 : undefined}
+              placeholder={placeholder}
+              placeholderColor={inputProps.placeholderColor}
+              value={value}
+              onFocus={this.onFocus}
+              onBlur={this.onBlur}
+              onChange={this.onChange}
+              onSelect={this.onSelect}
+              inputRef={ref => (this._input = ref)} />
+          </InputContainer>
 
-          {this.state.dropdownOpen && !this.state.loading &&
-            <ThemeProvider
-              theme={dropdownTheme}>
-              <Dropdown
-                keyboardHelpers={this.props.keyboardHelpers}
-                footerComponent={this.props.footerComponent}
-                attributes={this.state.attributes}
-                value={this.state.dropdownValue}
-                onSelect={this.onSelectValue}
-                onClose={this.onClose}
-                offsetX={this.state.dropdownX}
-                offsetY={this.state.dropdownY} />
-            </ThemeProvider>}
+          {dropdownOpen &&
+            <Dropdown
+              keyboardHelpers={keyboardHelpers}
+              footerComponent={footerComponent}
+              attributes={attributes}
+              value={dropdownValue}
+              nameKey={nameKey}
+              onSelect={this.onSelectValue}
+              onClose={this.onClose}
+              offsetX={dropdownX}
+              offsetY={dropdownY}
+              dropdownProps={dropdownProps}
+              selectorProps={selectorProps}
+              listProps={listProps} />}
         </Container>
       </PageClick>
     )

@@ -18,11 +18,13 @@ test('tokenRegex', t => {
   t.true(token.tokenRegex().test('foo:"bar baz*"'))
   t.true(token.tokenRegex().test('foo:" "'))
   t.true(token.tokenRegex().test('foo:bar:baz'))
+  t.true(token.tokenRegex().test('$foo:bar'))
   t.false(token.tokenRegex().test('foo'))
   t.false(token.tokenRegex().test('foo:'))
   t.false(token.tokenRegex().test('foo:*'))
   t.false(token.tokenRegex().test('foo::'))
   t.false(token.tokenRegex().test('foo:""'))
+  // t.false(token.tokenRegex().test('%foo:bar'))
 })
 
 test('parseToken', t => {
@@ -71,7 +73,7 @@ test('extractTokens', t => {
   ])
   t.deepEqual(token.extractTokens('level:debug (foo:bar OR level:critical) level:foobar', [
     { name: 'level', enumerations: ['debug', 'critical'] }
-  ]), [
+  ], 'name'), [
     [0, 11],
     [24, 38]
   ])
