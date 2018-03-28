@@ -5,15 +5,12 @@ import { parseToken, serializeToken } from '../utils/token'
 
 import {
   Container,
-  Section,
   Suggestions,
   Suggestion,
-  Helper,
   Operators,
   Operator,
   OperatorLone,
-  Key,
-  KeyOutline
+  Key
 } from './dropdown.styl'
 
 export default class extends PureComponent {
@@ -344,20 +341,6 @@ export default class extends PureComponent {
               {operator.name}
             </Operator>)}
         </Operators>
-
-        {this.props.keyboardHelpers &&
-          <Section center>
-            <Helper>
-              <KeyOutline>▲</KeyOutline>
-              <KeyOutline>▼</KeyOutline>
-              to navigate
-            </Helper>
-
-            <Helper>
-              <KeyOutline long>↵</KeyOutline>
-              to select
-            </Helper>
-          </Section>}
 
         <Footer />
       </Container>

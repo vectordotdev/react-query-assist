@@ -63,14 +63,6 @@ Container.defaultProps = {
   minWidth: '280px'
 }
 
-export const Section = styled.section`
-  padding: 15px;
-  text-align: ${props => props.center ? 'center' : 'inherit'};
-  :not(:last-child) {
-    border-bottom: 1px solid rgba(255, 255, 255, .15);
-  }
-`
-
 export const Suggestions = styled.ul`
   list-style-type: none;
   line-height: 20px;
@@ -105,8 +97,12 @@ Suggestion.defaultProps = {
   maxWidth: '320px'
 }
 
-export const Operators = Section.extend`
+export const Operators = styled.section`
   padding: 15px 0;
+  text-align: ${props => props.center ? 'center' : 'inherit'};
+  :not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, .15);
+  }
 `
 
 export const Operator = styled.div`
@@ -138,22 +134,4 @@ export const Key = styled.div`
   vertical-align: middle;
   padding: 2px 5px;
   margin-right: 5px;
-`
-
-export const KeyOutline = Key.extend`
-  background: none;
-  border: 1px solid ${props => props.theme.color};
-  color: ${props => props.theme.color};
-  font-size: 8px;
-  padding: 0;
-  width: ${props => props.long ? '36px' : '18px'};
-  height: 18px;
-`
-
-export const Helper = styled.div`
-  display: inline-block;
-  opacity: 0.5;
-  &:not(:last-child) {
-    margin-right: 15px;
-  }
 `
