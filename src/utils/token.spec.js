@@ -35,10 +35,14 @@ test('parseToken', t => {
   t.true(token.parseToken('foo:"bar*"').wildcard)
   t.is(token.parseToken('foo:"bar baz*"').attributeValue, 'bar baz')
   t.is(token.parseToken('foo:bar:baz:qux').attributeValue, 'bar:baz:qux')
+  t.true(token.parseToken('foo:bar', [{ name: 'foo' }], ['name']).attributeNameValid)
+  t.false(token.parseToken('fooo:bar', [{ name: 'foo' }], ['name']).attributeNameValid)
   t.deepEqual(token.parseToken('-foo_bar.baz:>="qux"'), {
     fullToken: '-foo_bar.baz:>="qux"',
     attributeName: 'foo_bar.baz',
+    attributeNameValid: false,
     attributeValue: 'qux',
+    attributeValueValid: false,
     prepended: '-',
     operator: '>=',
     negated: true,
@@ -73,7 +77,7 @@ test('extractTokens', t => {
   ])
   t.deepEqual(token.extractTokens('level:debug (foo:bar OR level:critical) level:foobar', [
     { name: 'level', enumerations: ['debug', 'critical'] }
-  ], 'name'), [
+  ], ['name']), [
     [0, 11],
     [24, 38]
   ])

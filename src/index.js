@@ -18,6 +18,7 @@ export default class extends Component {
     debug: PropTypes.bool,
     data: PropTypes.array,
     nameKey: PropTypes.string,
+    nameKeyIncludes: PropTypes.array,
     defaultValue: PropTypes.string,
     placeholder: PropTypes.string,
     onChange: PropTypes.func,
@@ -34,6 +35,7 @@ export default class extends Component {
   static defaultProps = { // eslint-disable-line
     data: [],
     nameKey: 'name',
+    nameKeyIncludes: ['name'],
     defaultValue: '',
     onChange: () => {},
     onSubmit: () => {},
@@ -236,10 +238,10 @@ export default class extends Component {
   // }
 
   extract (value) {
-    const { nameKey } = this.props
+    const { nameKeyIncludes } = this.props
     const { attributes } = this.state
 
-    return extractTokens(value, attributes, nameKey)
+    return extractTokens(value, attributes, nameKeyIncludes)
   }
 
   getCurrentChunk (value) {

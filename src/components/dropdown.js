@@ -207,7 +207,7 @@ export default class extends PureComponent {
       attributes
     } = this.props
 
-    const parsed = parseToken(value, null, nameKey)
+    const parsed = parseToken(value)
 
     const hasAttributeName = parsed.attributeName && value.indexOf(':') > -1
     const selectedIdx = hasAttributeName ? attributes
@@ -277,8 +277,7 @@ export default class extends PureComponent {
 
   setOperator (newOperator) {
     const {
-      value,
-      nameKey
+      value
     } = this.props
 
     const {
@@ -292,7 +291,7 @@ export default class extends PureComponent {
 
       this.props.onSelect(newValue)
     } else {
-      const token = parseToken(value, null, nameKey)
+      const token = parseToken(value)
       token.operator = operator === newOperator ? '' : newOperator
 
       this.props.onSelect(serializeToken(token))

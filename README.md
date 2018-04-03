@@ -114,6 +114,7 @@ By default, [keyboard helpers](#keyboardHelpers) for the dropdown are enabled. M
 | `onSubmit` | function | Called with the final value of the query when the enter key is pressed. *Pressing enter will submit the query, but shift+enter will create a new line.* | - |
 | `defaultValue` | string | The default value to pass to the input component. Will parse this value when mounted for any existing tokens. | - |
 | `nameKey` | string | The key to use for the attribute name in the data object. | `name` |
+| `nameKeyIncludes` | array | Keys to look at when determining a valid attribute name (e.g. if you want to display short names, but keep long names valid.) | `['name']` |
 | `placeholder` | string | The placeholder text to use for the input field. | `Search` |
 | `collapseOnBlur` | boolean | The input field automatically expands to fit the text, but if this is `true`, will collapse to one line when it is not in focus. | - |
 | <a name="keyboardHelpers"></a>`keyboardHelpers` | boolean | Whether to enable the keyboard helpers for the dropdown. | `true` |

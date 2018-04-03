@@ -19,7 +19,7 @@ export function tokenRegex (opts = {}) {
   )
 }
 
-export function parseToken (value, attributes = [], nameKey) {
+export function parseToken (value, attributes = [], nameKeyIncludes = []) {
   const results = Array.isArray(value)
     ? value
     : tokenRegex({ partial: true }).exec(value)
@@ -31,7 +31,9 @@ export function parseToken (value, attributes = [], nameKey) {
   const tokenData = {
     fullToken: results[0],
     attributeName: results[2],
+    attributeNameValid: false,
     attributeValue: results[5] || results[7],
+    attributeValueValid: false,
     prepended: results[1] || '',
     operator: results[3],
     negated: results[0].indexOf('-') > -1,
@@ -41,7 +43,16 @@ export function parseToken (value, attributes = [], nameKey) {
 
   if (attributes) {
     const attribute = attributes
-      .find(attr => compare(attr[nameKey], tokenData.attributeName))
+      .find(attr => {
+        let matchFound = false
+        for (const key of nameKeyIncludes) {
+          if (compare(attr[key], tokenData.attributeName)) {
+            matchFound = true
+            break
+          }
+        }
+        return matchFound
+      })
 
     if (attribute) {
       tokenData.attributeNameValid = true
@@ -68,14 +79,14 @@ export function serializeToken (token) {
   return `${prepended}${attributeName}:${operator}${attributeValue}`
 }
 
-export function extractTokens (value, attributes, nameKey) {
+export function extractTokens (value, attributes, nameKeyIncludes) {
   const positions = []
   const regex = tokenRegex()
 
   let result
   while ((result = regex.exec(value)) !== null) {
     if (attributes) {
-      const parsed = parseToken(result, attributes, nameKey)
+      const parsed = parseToken(result, attributes, nameKeyIncludes)
 
       if (!parsed.attributeNameValid || !parsed.attributeValueValid) {
         continue
