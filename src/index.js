@@ -46,14 +46,13 @@ export default class extends Component {
 
   constructor (props) {
     super(props)
-    this.keydown = this.keydown.bind(this)
-    this.handleEnterKey = this.handleEnterKey.bind(this)
     this.onFocus = this.onFocus.bind(this)
     this.onBlur = this.onBlur.bind(this)
+    this.onKeyDown = this.onKeyDown.bind(this)
     this.onChange = this.onChange.bind(this)
-    this.onSelect = this.onSelect.bind(this)
     this.onAutosuggest = this.onAutosuggest.bind(this)
     this.onSelectValue = this.onSelectValue.bind(this)
+    this.handleEnterKey = this.handleEnterKey.bind(this)
     this.shouldAutosuggest = this.shouldAutosuggest.bind(this)
     this.onClose = this.onClose.bind(this)
     this.onClickToken = this.onClickToken.bind(this)
@@ -74,15 +73,9 @@ export default class extends Component {
   }
 
   componentDidMount () {
-    document.addEventListener('keydown', this.keydown, false)
-
     this.setState({
       overlayComponents: this.buildOverlay(this.state.value)
     })
-  }
-
-  componentWillUnmount () {
-    document.removeEventListener('keydown', this.keydown, false)
   }
 
   componentDidUpdate (prevProps, prevState) {
@@ -101,13 +94,14 @@ export default class extends Component {
     ) {
       this.setState({
         overlayComponents: this.buildOverlay(value)
-      })
+      }, this.onAutosuggest)
     }
   }
 
   componentWillReceiveProps (nextProps) {
     const newState = {}
 
+    // default value can be empty string (to clear search)
     if (nextProps.defaultValue !== undefined) {
       newState.value = nextProps.defaultValue
     }
@@ -119,30 +113,10 @@ export default class extends Component {
     this.setState(newState)
   }
 
-  keydown (evt) {
-    switch (evt.keyCode) {
-      case 13: // enter key
-        this.handleEnterKey(evt)
-        break
-    }
-  }
-
-  handleEnterKey (evt) {
-    // whether this input is infocus
-    const isFocused = document.activeElement === this._input
-
-    // submit on enter, line break on shift enter
-    // dropdown handles enter key as well, so prevent clash
-    if (!evt.shiftKey && isFocused && !this.state.dropdownOpen) {
-      evt.preventDefault()
-      this.props.onSubmit(this.state.value)
-    }
-  }
-
   onFocus (evt) {
     this.setState({
       focused: true
-    })
+    }, this.onAutosuggest)
   }
 
   onBlur (evt) {
@@ -151,18 +125,21 @@ export default class extends Component {
     })
   }
 
+  onKeyDown (evt) {
+    if (evt.keyCode === 13) {
+      this.handleEnterKey(evt)
+    }
+
+    // close dropdown if navigating with arrow keys
+    if (evt.keyCode === 37 || evt.keyCode === 39) {
+      this.onClose()
+    }
+  }
+
   onChange (evt) {
     this.setState({
       value: evt.target.value
-    }, this.onAutosuggest)
-  }
-
-  onSelect (evt) {
-    const { value } = evt.target
-
-    this.setState({
-      overlayComponents: this.buildOverlay(value)
-    }, this.onAutosuggest)
+    })
   }
 
   onAutosuggest () {
@@ -200,17 +177,28 @@ export default class extends Component {
     const before = value.slice(0, index)
     const after = value.slice(indexEnd)
     const position = index + chunk.length + appended.length
-    const positionEnd = position + after.length
+    // const positionEnd = position + after.length
 
     this.setState({
-      value: appended === ' ' && position < positionEnd
-        ? `${before}${chunk}${after}`
-        : `${before}${chunk}${appended}${after}`
+      value: `${before}${chunk}${appended}${after}`,
+      dropdownClosed: appended !== ':'
     }, () => {
       // position caret at the end of the inserted value
       this._input.focus()
       this._input.setSelectionRange(position, position)
     })
+  }
+
+  handleEnterKey (evt) {
+    // whether this input is infocus
+    const isFocused = document.activeElement === this._input
+
+    // submit on enter, line break on shift enter
+    // dropdown handles enter key globally, so prevent clash
+    if (!evt.shiftKey && isFocused && !this.state.dropdownOpen) {
+      evt.preventDefault()
+      this.props.onSubmit(this.state.value)
+    }
   }
 
   shouldAutosuggest (chunk) {
@@ -402,8 +390,8 @@ export default class extends Component {
               value={value}
               onFocus={this.onFocus}
               onBlur={this.onBlur}
+              onKeyDown={this.onKeyDown}
               onChange={this.onChange}
-              onSelect={this.onSelect}
               inputRef={ref => (this._input = ref)} />
           </InputContainer>
 
