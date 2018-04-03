@@ -55,7 +55,7 @@ export default class extends Component {
     this.handleEnterKey = this.handleEnterKey.bind(this)
     this.shouldAutosuggest = this.shouldAutosuggest.bind(this)
     this.onClose = this.onClose.bind(this)
-    this.onClickToken = this.onClickToken.bind(this)
+    // this.onClickToken = this.onClickToken.bind(this)
     this.extract = this.extract.bind(this)
     this.getCurrentChunk = this.getCurrentChunk.bind(this)
     this.buildOverlay = this.buildOverlay.bind(this)
@@ -229,11 +229,11 @@ export default class extends Component {
     })
   }
 
-  onClickToken (start, end) {
-    // move cursor to end of token
-    this._input.focus()
-    this._input.setSelectionRange(end, end)
-  }
+  // onClickToken (start, end) {
+  //   // move cursor to end of token
+  //   this._input.focus()
+  //   this._input.setSelectionRange(end, end)
+  // }
 
   extract (value) {
     const { nameKey } = this.props
@@ -292,15 +292,14 @@ export default class extends Component {
 
     let currentPosition = 0
     positions.reduce((prev, next) => {
-      const startIdx = next[0] + relativeToIdx
-      const endIdx = next[1] + relativeToIdx
+      // const startIdx = next[0] + relativeToIdx
+      // const endIdx = next[1] + relativeToIdx
 
       chunks.push(value.substring(prev[1], next[0]))
       chunks.push(
         <Token
           key={`token-${next[0]}`}
-          tokenColor={this.props.inputProps.tokenColor}
-          onClick={() => this.onClickToken(startIdx, endIdx)}>
+          tokenColor={this.props.inputProps.tokenColor}>
           {value.substring(next[0], next[1])}
         </Token>
       )

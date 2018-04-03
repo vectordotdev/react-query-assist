@@ -120,21 +120,20 @@ const tokenColor = style({
   key: 'colors'
 })
 
-const tokenUnderline = style({
-  prop: 'tokenColor',
-  cssProperty: 'backgroundColor',
-  key: 'colors'
-})
+// const tokenUnderline = style({
+//   prop: 'tokenColor',
+//   cssProperty: 'backgroundColor',
+//   key: 'colors'
+// })
 
 export const Token = Inline.extend`
   position: relative;
   cursor: pointer;
-  pointer-events: auto;
   font-weight: 500;
 
   ${tokenColor}
 
-  &:after {
+  ${'' /* &:after {
     content: '';
     position: absolute;
     top: 100%;
@@ -146,11 +145,11 @@ export const Token = Inline.extend`
     transition: all 150ms;
 
     ${tokenUnderline}
-  }
-  &:hover:after {
+  } */}
+  ${'' /* &:hover:after {
     opacity: 1;
     transform: translateY(0px);
-  }
+  } */}
 `
 
 Token.defaultProps = {
