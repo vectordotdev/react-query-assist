@@ -77,6 +77,9 @@ export const Suggestions = styled.ul`
   margin: 10px 0;
   overflow: auto;
 
+  ${space}
+  ${color}
+  ${borders}
   ${maxHeight}
 `
 
