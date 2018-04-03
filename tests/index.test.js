@@ -1,23 +1,12 @@
 import React from 'react'
 import test from 'ava'
 import { mount } from 'enzyme'
-import { mockAttributes } from './helpers'
+import { mockAttributes, simulateExtra } from './helpers'
 import QueryAssist from '../src'
 
 test.beforeEach(t => {
-  t.context.wrapper = mount(
-    <QueryAssist data={mockAttributes} />
-  )
-
-  // simulate typing in textarea field
-  t.context.wrapper.simulateTyping = (value = '', position) => {
-    const textarea = t.context.wrapper.find('textarea')
-    const newPos = position || value.length
-
-    textarea.simulate('change', { target: { value } })
-    textarea.getDOMNode().setSelectionRange(newPos, newPos)
-    textarea.simulate('select')
-  }
+  t.context.wrapper = mount(<QueryAssist data={mockAttributes} />)
+  simulateExtra(t.context.wrapper)
 })
 
 test('closed at start', t => {
@@ -29,7 +18,7 @@ test('closed at start', t => {
 
 test('opens when search is focused', t => {
   const { wrapper } = t.context
-  wrapper.simulateTyping()
+  wrapper.instance().onFocus()
   t.true(wrapper.state('dropdownOpen'))
 })
 
@@ -41,13 +30,27 @@ test('remains open when typing an attribute', t => {
   t.is(wrapper.state('overlayComponents')[0].length, 0)
 })
 
+test('closes after selecting suggestion', t => {
+  const { wrapper } = t.context
+  wrapper.simulateTyping('level:i')
+  wrapper.instance().onSelectValue('level:info')
+  t.true(wrapper.state('dropdownClosed'))
+  t.false(wrapper.state('dropdownOpen'))
+})
+
+test('closes when navigating with arrow keys', t => {
+  const { wrapper } = t.context
+  wrapper.simulateTyping('lev')
+  t.true(wrapper.state('dropdownOpen'))
+  wrapper.simulateKey(37)
+  t.false(wrapper.state('dropdownOpen'))
+})
+
 test('opens with new word', t => {
   const { wrapper } = t.context
   wrapper.simulateTyping('level:info ')
   t.true(wrapper.state('dropdownOpen'))
   t.is(wrapper.state('dropdownValue'), '')
-  // makes sure dropdown position is correct
-  t.is(wrapper.state('overlayComponents')[0].length, 2)
 })
 
 test('opens at end of existing token', t => {
@@ -55,10 +58,6 @@ test('opens at end of existing token', t => {
   wrapper.simulateTyping('foobar level:error level:info bazqux', 29)
   t.true(wrapper.state('dropdownOpen'))
   t.is(wrapper.state('dropdownValue'), 'level:info')
-  // splits up the overlay correctly
-  t.is(wrapper.state('overlayComponents')[0].length, 3)
-  t.is(wrapper.state('overlayComponents')[0][0], 'foobar ')
-  t.is(typeof wrapper.state('overlayComponents')[0][1], 'object')
 })
 
 test('does not open at the end of invalid token', t => {
@@ -115,16 +114,16 @@ test('highlights valid tokens in the query', t => {
   const { wrapper } = t.context
   wrapper.simulateTyping('foo level:info level:foo bar (foo:bar OR other:"foo bar") other:a* http_response:400 baz http_response:>600')
   const overlay = wrapper.state('overlayComponents')
-  t.is(overlay[0][0], 'foo ')
-  t.is(overlay[0][1].props.children, 'level:info')
-  t.is(overlay[0][2], ' level:foo bar (foo:bar OR ')
-  t.is(overlay[0][3].props.children, 'other:"foo bar"')
-  t.is(overlay[0][4], ') ')
-  t.is(overlay[0][5].props.children, 'other:a*')
-  t.is(overlay[0][6], ' ')
-  t.is(overlay[0][7].props.children, 'http_response:400')
-  t.is(overlay[0][8], ' baz ')
-  t.is(overlay[1].props.children[0], 'http_response:>600')
+  const content = overlay[1].props.children
+  t.is(content[0], 'foo ')
+  t.is(content[1].props.children, 'level:info')
+  t.is(content[2], ' level:foo bar (foo:bar OR ')
+  t.is(content[3].props.children, 'other:"foo bar"')
+  t.is(content[4], ') ')
+  t.is(content[5].props.children, 'other:a*')
+  t.is(content[6], ' ')
+  t.is(content[7].props.children, 'http_response:400')
+  t.is(content[8], ' baz http_response:>600')
 })
 
 test('inserts selected value at end of query', t => {
@@ -150,7 +149,7 @@ test('alters existing token in query with parens', t => {
 
 // figure out how to test dropdown position,
 // jsdom doesn't currently support node.offsetLeft?
-test.todo('integration: dropdown location')
+test.todo('dropdown location')
 
 // make sure they all get implemented correctly
 test.todo('custom styles with styled-system props')
@@ -160,3 +159,4 @@ test.todo('listening to changes with onChange')
 test.todo('textarea collapses on blur')
 test.todo('passing in nameKey')
 test.todo('adjusting scroll when using arrow keys')
+test.todo('splits up overlay correctly')

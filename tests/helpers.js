@@ -30,3 +30,21 @@ export const mockAttributes = [
     enumerations: null
   }
 ]
+
+export function simulateExtra (wrapper) {
+  wrapper.simulateKey = code => {
+    wrapper.instance().onKeyDown({
+      preventDefault: () => {},
+      keyCode: code
+    })
+  }
+
+  wrapper.simulateTyping = (value = '', position) => {
+    const textarea = wrapper.find('textarea')
+    const newPos = position || value.length
+
+    textarea.simulate('change', { target: { value } })
+    textarea.getDOMNode().setSelectionRange(newPos, newPos)
+    textarea.simulate('focus')
+  }
+}

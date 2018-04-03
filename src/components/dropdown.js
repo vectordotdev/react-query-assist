@@ -43,7 +43,7 @@ export default class extends PureComponent {
 
   constructor (props) {
     super(props)
-    this.keydown = this.keydown.bind(this)
+    this.onKeyDown = this.onKeyDown.bind(this)
     this.handleEnterKey = this.handleEnterKey.bind(this)
     this.handleEscKey = this.handleEscKey.bind(this)
     this.handleArrowKeys = this.handleArrowKeys.bind(this)
@@ -68,12 +68,12 @@ export default class extends PureComponent {
   componentDidMount () {
     this.filterSuggestions(this.props.value)
     this.props.keyboardHelpers &&
-      document.addEventListener('keydown', this.keydown, false)
+      document.addEventListener('keydown', this.onKeyDown, false)
   }
 
   componentWillUnmount () {
     this.props.keyboardHelpers &&
-      document.removeEventListener('keydown', this.keydown, false)
+      document.removeEventListener('keydown', this.onKeyDown, false)
   }
 
   componentWillReceiveProps (nextProps) {
@@ -88,7 +88,7 @@ export default class extends PureComponent {
     }
   }
 
-  keydown (evt) {
+  onKeyDown (evt) {
     switch (evt.keyCode) {
       case 9: // tab key
       case 13: // enter key

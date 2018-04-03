@@ -31,8 +31,8 @@
     "prebuild": "nwb clean-module && nwb clean-demo",
     "build": "nwb build-react-component",
     "test:lint": "standard --verbose | snazzy",
-    "test:unit": "ava src/**/*.spec.js",
-    "test:integration": "ava tests/**/*.test.js",
+    "test:unit": "ava --no-cache 'src/**/*.spec.js'",
+    "test:integration": "ava --no-cache 'tests/**/*.test.js'",
     "test": "npm-run-all test:*",
     "start": "nwb serve-react-demo",
     "prepare": "npm run build"

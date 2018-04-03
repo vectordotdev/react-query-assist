@@ -68,9 +68,7 @@ If the attribute type is a string, there are two additional autocomplete values 
 
 #### When will the dropdown open?
 
-The autocomplete dropdown will automatically open when it detects a new word is being typed, or if the caret is positioned at the end of a valid token. (Tokens are only valid if the attribute and value match an attribute and enumeration in the autocomplete data.)
-
-When a token is clicked, it will bring the caret to the end of the token and open the dropdown for easy editing.
+The autocomplete dropdown will automatically open when it detects a new word is being typed or an existing token is being edited. *Note: Tokens are only valid if the attribute and value match an attribute and enumeration in the autocomplete data.*
 
 ## Operators
 

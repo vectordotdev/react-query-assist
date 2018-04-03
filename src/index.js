@@ -129,6 +129,11 @@ export default class extends Component {
     if (evt.keyCode === 13) {
       this.handleEnterKey(evt)
     }
+
+    // close dropdown if navigating with arrow keys
+    if (evt.keyCode === 37 || evt.keyCode === 39) {
+      this.onClose()
+    }
   }
 
   onChange (evt) {
@@ -387,7 +392,6 @@ export default class extends Component {
               onBlur={this.onBlur}
               onKeyDown={this.onKeyDown}
               onChange={this.onChange}
-              // onSelect={this.onAutosuggest}
               inputRef={ref => (this._input = ref)} />
           </InputContainer>
 

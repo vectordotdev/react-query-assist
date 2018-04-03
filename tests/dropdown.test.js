@@ -2,7 +2,7 @@ import React from 'react'
 import test from 'ava'
 import sinon from 'sinon'
 import { mount } from 'enzyme'
-import { mockAttributes } from './helpers'
+import { mockAttributes, simulateExtra } from './helpers'
 import Dropdown from '../src/components/dropdown'
 
 test.beforeEach(t => {
@@ -12,13 +12,7 @@ test.beforeEach(t => {
       attributes={mockAttributes}
       onSelect={t.context.onSelect} />
   )
-
-  t.context.wrapper.simulateKey = (code) => {
-    t.context.wrapper.instance().keydown({
-      preventDefault: () => {},
-      keyCode: code
-    })
-  }
+  simulateExtra(t.context.wrapper)
 })
 
 test('basic filtering', t => {
@@ -111,7 +105,7 @@ test('suggestion is selected for attribute/value', t => {
   wrapper.setProps({ value: 'level:' })
   // selecting value
   wrapper.simulateKey(13)
-  t.true(onSelect.secondCall.calledWith('level:info', ' '))
+  t.true(onSelect.secondCall.calledWith('level:info'))
 })
 
 test('negation is toggled', t => {
