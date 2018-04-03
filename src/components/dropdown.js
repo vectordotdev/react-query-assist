@@ -252,7 +252,7 @@ export default class extends PureComponent {
       ? `${attribute[nameKey]}:${operator}${suggestion}`
       : suggestion
 
-    const appended = selectedIdx === -1 ? ':' : ' '
+    const appended = selectedIdx === -1 ? ':' : ''
     onSelect(`${prepended}${newValue}`, appended)
   }
 
