@@ -110,6 +110,14 @@ test('closes dropdown when there is no attribute match', t => {
   t.false(wrapper.state('dropdownOpen'))
 })
 
+test('does not open when data attribute changes', t => {
+  let attributes = []
+  const wrapper = mount(<QueryAssist data={attributes} />)
+  t.false(wrapper.state('dropdownOpen'))
+  wrapper.setProps({ data: mockAttributes })
+  t.false(wrapper.state('dropdownOpen'))
+})
+
 test('highlights valid tokens in the query', t => {
   const { wrapper } = t.context
   wrapper.simulateTyping('foo level:info level:foo bar (foo:bar OR other:"foo bar") other:a* http_response:400 baz http_response:>600')

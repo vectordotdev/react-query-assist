@@ -205,7 +205,7 @@ export default class extends Component {
 
   shouldAutosuggest (chunk) {
     const { selectionStart } = this._input
-    const { value } = this.state
+    const { value, focused } = this.state
 
     // next character is whitespace, closing paren or null
     const nextCharIsEmpty = !value.charAt(selectionStart) ||
@@ -219,8 +219,8 @@ export default class extends Component {
     const atEndOfWord = nextCharIsEmpty &&
       /[^)\s]/.test(value.charAt(selectionStart - 1))
 
-    return !value || isNewWord ||
-      (atEndOfWord && !this.state.dropdownClosed)
+    return focused && (!value || isNewWord ||
+      (atEndOfWord && !this.state.dropdownClosed))
   }
 
   onClose (forWord) {
