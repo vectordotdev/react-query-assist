@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { render } from 'react-dom'
-import styled, { injectGlobal } from 'styled-components'
+import styled from 'react-emotion'
+import { injectGlobal } from 'emotion'
 import QueryAssist from '../../src'
 
 injectGlobal`
@@ -12,14 +13,14 @@ injectGlobal`
   }
 `
 
-const Container = styled.div`
+const Container = styled('div')`
   background: #282B37;
   width: 100vw;
   height: 100vh;
   padding: 20px;
 `
 
-const Title = styled.h2`
+const Title = styled('h2')`
   color: #FFFFFF;
   margin-bottom: 15px;
   font-weight: 600;
@@ -29,12 +30,12 @@ const Assist = styled(QueryAssist)`
   margin-bottom: 50px;
 `
 
-const Footer = styled.div`
+const Footer = styled('div')`
   padding: 15px;
   text-align: center;
 `
 
-export const Link = styled.a`
+export const Link = styled('a')`
   display: inline-block;
   background: #6554AF;
   border: 1px solid #58499B;

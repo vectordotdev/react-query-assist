@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components'
+import styled, { css } from 'react-emotion'
 import Textarea from 'react-textarea-autosize'
 import clean from 'clean-element'
 
@@ -21,14 +21,13 @@ import {
   letterSpacing
 } from 'styled-system'
 
-export const Container = styled.div`
+export const Container = styled('div')`
   position: relative;
   width: 100%;
 `
 
-export const InputContainer = styled.div`
+export const InputContainer = styled('div')`
   position: relative;
-
   ${space}
   ${width}
   ${borders}
@@ -91,7 +90,17 @@ Input.defaultProps = {
   placeholderColor: '#D7D7D7'
 }
 
-export const Overlay = Input.withComponent('div').extend`
+export const Overlay = styled('div')`
+  display: block;
+  background: none;
+  border: none;
+  outline: none;
+  resize: none;
+  font: inherit;
+  width: 100%;
+  padding: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
   position: absolute;
   top: 0;
   bottom: 0;
@@ -110,7 +119,7 @@ export const Overlay = Input.withComponent('div').extend`
   -webkit-text-fill-color: initial;
 `
 
-export const Inline = styled.span`
+export const Inline = styled('span')`
   font: inherit;
 `
 
@@ -126,7 +135,7 @@ const tokenColor = style({
 //   key: 'colors'
 // })
 
-export const Token = Inline.extend`
+export const Token = styled(Inline)`
   position: relative;
   cursor: pointer;
   font-weight: 500;

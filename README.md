@@ -15,10 +15,10 @@ A token is a key-value in a search query that contains an attribute and a value 
 ## Getting Started
 
 ```bash
-$ npm install -S react-query-assist styled-components
+$ npm install -S react-query-assist emotion react-emotion
 ```
 
-> `styled-components` is a peer dependency of this library to allow for easy custom styling.
+> `emotion` is a peer dependency of this library to allow for easy custom styling.
 
 ```javascript
 import QueryAssist from 'react-query-assist'

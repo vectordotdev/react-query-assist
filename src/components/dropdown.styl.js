@@ -1,4 +1,4 @@
-import styled, { keyframes } from 'styled-components'
+import styled, { keyframes } from 'react-emotion'
 
 import {
   top,
@@ -31,7 +31,7 @@ export const swingDown = keyframes`
   }
 `
 
-export const Container = styled.aside`
+export const Container = styled('aside')`
   display: inline-block;
   position: absolute;
   z-index: 10;
@@ -63,7 +63,7 @@ Container.defaultProps = {
   minWidth: '280px'
 }
 
-export const Section = styled.section`
+export const Section = styled('section')`
   padding: 15px;
   text-align: ${props => props.center ? 'center' : 'inherit'};
   :not(:last-child) {
@@ -71,7 +71,7 @@ export const Section = styled.section`
   }
 `
 
-export const Suggestions = styled.ul`
+export const Suggestions = styled('ul')`
   list-style-type: none;
   line-height: 20px;
   margin: 10px 0;
@@ -87,7 +87,7 @@ Suggestions.defaultProps = {
   maxHeight: '200px'
 }
 
-export const Suggestion = styled.li`
+export const Suggestion = styled('li')`
   cursor: pointer;
   border: 1px solid transparent;
   overflow: hidden;
@@ -108,11 +108,11 @@ Suggestion.defaultProps = {
   maxWidth: '320px'
 }
 
-export const Operators = Section.extend`
+export const Operators = styled(Section)`
   padding: 15px 0;
 `
 
-export const Operator = styled.div`
+export const Operator = styled('div')`
   display: inline-block;
   background: ${props => props.active ? 'rgba(255, 255, 255, 0.2)' : 'none'};
   font-weight: 500;
@@ -124,12 +124,12 @@ export const Operator = styled.div`
   }
 `
 
-export const OperatorLone = Operator.extend`
+export const OperatorLone = styled(Operator)`
   display: block;
   margin-bottom: 5px;
 `
 
-export const Key = styled.div`
+export const Key = styled('div')`
   display: inline-block;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
@@ -143,7 +143,7 @@ export const Key = styled.div`
   margin-right: 5px;
 `
 
-export const KeyOutline = Key.extend`
+export const KeyOutline = styled(Key)`
   background: none;
   border: 1px solid ${props => props.theme.color};
   color: ${props => props.theme.color};
@@ -153,7 +153,7 @@ export const KeyOutline = Key.extend`
   height: 18px;
 `
 
-export const Helper = styled.div`
+export const Helper = styled('div')`
   display: inline-block;
   opacity: 0.5;
   &:not(:last-child) {
