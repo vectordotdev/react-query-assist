@@ -14,7 +14,6 @@ import {
   fontWeight,
   letterSpacing,
   lineHeight,
-  propTypes,
   space,
   style,
   textAlign,
@@ -51,12 +50,6 @@ InputContainer.defaultProps = {
 };
 
 const CleanInput = clean(Textarea);
-
-CleanInput.propTypes = {
-  placeholderColor: propTypes.color.color,
-  ...propTypes.lineHeight,
-  ...propTypes.borderRadius,
-};
 
 const placeholderColor = style({
   prop: "placeholderColor",
@@ -109,7 +102,7 @@ export const Overlay = styled("div")`
   pointer-events: none;
   padding: inherit;
 
-  ${(props) => props.collapsed && css`
+  ${(props: { collapsed: boolean }) => props.collapsed && css`
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;

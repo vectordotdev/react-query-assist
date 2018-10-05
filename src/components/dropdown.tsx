@@ -19,7 +19,7 @@ interface IState {
   suggestions: string[];
   highlightedIdx: number;
   selectedIdx: number | null;
-  prepended: string;
+  prepended?: string;
   operator: string;
   negated: boolean;
 }
@@ -69,7 +69,7 @@ export default class extends React.PureComponent<IDropdownProps, IState> {
       document.removeEventListener("keydown", this.onKeyDown, false);
   }
 
-  public componentWillReceiveProps(nextProps) {
+  public componentWillReceiveProps(nextProps: IDropdownProps) {
     if (this.props.value !== nextProps.value) {
       this.filterSuggestions(nextProps.value);
     }
@@ -81,7 +81,7 @@ export default class extends React.PureComponent<IDropdownProps, IState> {
     }
   }
 
-  public onKeyDown(evt) {
+  public onKeyDown(evt: KeyboardEvent) {
     switch (evt.keyCode) {
       case 9: // tab key
       case 13: // enter key
@@ -97,17 +97,17 @@ export default class extends React.PureComponent<IDropdownProps, IState> {
     }
   }
 
-  public handleEnterKey(evt) {
+  public handleEnterKey(evt: KeyboardEvent) {
     evt.preventDefault();
     this.acceptSuggestion();
   }
 
-  public handleEscKey(evt) {
+  public handleEscKey(evt: KeyboardEvent) {
     evt.preventDefault();
     this.props.onClose(true);
   }
 
-  public handleArrowKeys(evt, keyCode) {
+  public handleArrowKeys(evt: KeyboardEvent, keyCode: number) {
     evt.preventDefault();
 
     const { highlightedIdx } = this.state;
