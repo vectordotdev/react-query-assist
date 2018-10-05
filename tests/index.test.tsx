@@ -1,6 +1,6 @@
-import test, { ExecutionContext } from "ava";
+import anyTest, { TestInterface } from "ava";
 import { mount, ReactWrapper } from "enzyme";
-import React from "react";
+import * as React from "react";
 import QueryAssist from "../src";
 import { mockAttributes, simulateExtra } from "./helpers";
 
@@ -8,27 +8,27 @@ interface ICustomContext {
   wrapper: ReactWrapper<{}, {}, React.Component<{}, {}, any>>;
 }
 
-type Context = ExecutionContext<ICustomContext>;
+const test = anyTest as TestInterface<ICustomContext>;
 
-test.beforeEach((t: Context) => {
-  t.context.wrapper = mount(data as QueryAssist= {mockAttributes} / > );
+test.beforeEach((t) => {
+  t.context.wrapper = mount(<QueryAssist data={mockAttributes} />);
   simulateExtra(t.context.wrapper);
 });
 
-test("closed at start", (t: Context) => {
+test("closed at start", (t) => {
   const { wrapper } = t.context;
   t.deepEqual(wrapper.state("attributes"), mockAttributes);
   t.is(wrapper.state("overlayComponents").length, 2);
   t.false(wrapper.state("dropdownOpen"));
 });
 
-test("opens when search is focused", (t: Context) => {
+test("opens when search is focused", (t) => {
   const { wrapper } = t.context;
   wrapper.instance().onFocus();
   t.true(wrapper.state("dropdownOpen"));
 });
 
-test("remains open when typing an attribute", (t: Context) => {
+test("remains open when typing an attribute", (t) => {
   const { wrapper } = t.context;
   wrapper.simulateTyping("lev");
   t.true(wrapper.state("dropdownOpen"));
@@ -36,7 +36,7 @@ test("remains open when typing an attribute", (t: Context) => {
   t.is(wrapper.state("overlayComponents")[0].length, 0);
 });
 
-test("closes after selecting suggestion", (t: Context) => {
+test("closes after selecting suggestion", (t) => {
   const { wrapper } = t.context;
   wrapper.simulateTyping("level:i");
   wrapper.instance().onSelectValue("level:info");
@@ -44,7 +44,7 @@ test("closes after selecting suggestion", (t: Context) => {
   t.false(wrapper.state("dropdownOpen"));
 });
 
-test("closes when navigating with arrow keys", (t: Context) => {
+test("closes when navigating with arrow keys", (t) => {
   const { wrapper } = t.context;
   wrapper.simulateTyping("lev");
   t.true(wrapper.state("dropdownOpen"));

@@ -23,9 +23,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "lint": "tslint {src,tests}/**/*",
-    "test:unit": "ava --no-cache 'src/**/*.spec.js'",
-    "test:integration": "ava --no-cache 'tests/**/*.test.js'",
-    "test": "npm-run-all test:*",
+    "test": "tsc && ava",
     "start": "nwb serve-react-demo",
     "build": "tsc",
     "prepublishOnly": "tsc"
@@ -60,6 +58,7 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "sinon": "^4.4.8",
+    "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
     "typescript": "^3.1.1"
   },
@@ -83,10 +82,13 @@
     ]
   },
   "ava": {
+    "compileEnhancements": false,
+    "extensions": [
+      "ts"
+    ],
     "require": [
-      "@babel/register",
-      "@babel/polyfill",
-      "./tests/helpers.js"
+      "ts-node/register/transpile-only",
+      "./tests/helpers.ts"
     ]
   }
 }
