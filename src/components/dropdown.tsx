@@ -28,8 +28,8 @@ export default class extends React.PureComponent<IDropdownProps, IState> {
   public static defaultProps = { // eslint-disable-line
     value: "",
     nameKey: "name",
-    onSelect: () => {},
-    onClose: () => {},
+    onSelect: () => ({}),
+    onClose: () => ({}),
     keyboardHelpers: true,
     footerComponent: () => null,
   };
@@ -59,14 +59,21 @@ export default class extends React.PureComponent<IDropdownProps, IState> {
   }
 
   public componentDidMount() {
-    this.filterSuggestions(this.props.value);
-    this.props.keyboardHelpers &&
+    const { value, keyboardHelpers } = this.props;
+
+    this.filterSuggestions(value);
+
+    if (keyboardHelpers) {
       document.addEventListener("keydown", this.onKeyDown, false);
+    }
   }
 
   public componentWillUnmount() {
-    this.props.keyboardHelpers &&
+    const { keyboardHelpers } = this.props;
+
+    if (keyboardHelpers) {
       document.removeEventListener("keydown", this.onKeyDown, false);
+    }
   }
 
   public componentWillReceiveProps(nextProps: IDropdownProps) {
@@ -151,7 +158,7 @@ export default class extends React.PureComponent<IDropdownProps, IState> {
     }
   }
 
-  public getAttribute(selectedIdx) {
+  public getAttribute(selectedIdx: number) {
     if (selectedIdx !== null && selectedIdx > -1) {
       return this.props.attributes[selectedIdx];
     }

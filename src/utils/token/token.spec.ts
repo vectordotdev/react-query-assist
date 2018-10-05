@@ -66,7 +66,12 @@ test("extractTokens", (t) => {
     [17, 28],
     [32, 43],
   ]);
-  t.deepEqual(token.extractTokens(`keyword1 (level:error AND heroku.source:"foo bar") keyword2 http.method:POST\n\t(-level:info OR http_response.status:>=400)\nkeyword3 invalid:token heroku.dyno_id:abc*`), [
+  t.deepEqual(
+    token.extractTokens(
+      'keyword1 (level:error AND heroku.source:"foo bar") ' +
+      "keyword2 http.method:POST\n\t" +
+      "(-level:info OR http_response.status:>=400)\n" +
+      "keyword3 invalid:token heroku.dyno_id:abc*"), [
     [10, 21],
     [26, 49],
     [60, 76],

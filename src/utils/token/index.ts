@@ -44,9 +44,9 @@ export interface ITokenData {
 }
 
 export function parseToken(
-  value: RegExpExecArray | string | string[], 
-  attributes: IQueryAssistData = [], 
-  nameKeyIncludes: string[] = []
+  value: RegExpExecArray | string | string[],
+  attributes: IQueryAssistData = [],
+  nameKeyIncludes: string[] = [],
   ): ITokenData {
 
   const results = Array.isArray(value)
@@ -112,12 +112,13 @@ export function extractTokens(value: string, attributes?: IQueryAssistData, name
   const positions = [];
   const regex = tokenRegex();
 
-  let result: RegExpExecArray | null | undefined;
-  while ((result = regex.exec(value)) !== null) {
+  let result = regex.exec(value);
+  while (result !== null) {
     if (attributes) {
       const parsed = parseToken(result, attributes, nameKeyIncludes);
 
       if (!parsed.attributeNameValid || !parsed.attributeValueValid) {
+        result = regex.exec(value);
         continue;
       }
     }
@@ -126,6 +127,8 @@ export function extractTokens(value: string, attributes?: IQueryAssistData, name
       result.index, // start position
       regex.lastIndex, // end position
     ]);
+
+    result = regex.exec(value);
   }
 
   return positions;

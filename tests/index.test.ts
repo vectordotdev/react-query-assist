@@ -1,28 +1,34 @@
-import test from "ava";
-import { mount } from "enzyme";
+import test, { ExecutionContext } from "ava";
+import { mount, ReactWrapper } from "enzyme";
 import React from "react";
 import QueryAssist from "../src";
 import { mockAttributes, simulateExtra } from "./helpers";
 
-test.beforeEach((t) => {
+interface ICustomContext {
+  wrapper: ReactWrapper<{}, {}, React.Component<{}, {}, any>>;
+}
+
+type Context = ExecutionContext<ICustomContext>;
+
+test.beforeEach((t: Context) => {
   t.context.wrapper = mount(data as QueryAssist= {mockAttributes} / > );
   simulateExtra(t.context.wrapper);
 });
 
-test("closed at start", (t) => {
+test("closed at start", (t: Context) => {
   const { wrapper } = t.context;
   t.deepEqual(wrapper.state("attributes"), mockAttributes);
   t.is(wrapper.state("overlayComponents").length, 2);
   t.false(wrapper.state("dropdownOpen"));
 });
 
-test("opens when search is focused", (t) => {
+test("opens when search is focused", (t: Context) => {
   const { wrapper } = t.context;
   wrapper.instance().onFocus();
   t.true(wrapper.state("dropdownOpen"));
 });
 
-test("remains open when typing an attribute", (t) => {
+test("remains open when typing an attribute", (t: Context) => {
   const { wrapper } = t.context;
   wrapper.simulateTyping("lev");
   t.true(wrapper.state("dropdownOpen"));
@@ -30,7 +36,7 @@ test("remains open when typing an attribute", (t) => {
   t.is(wrapper.state("overlayComponents")[0].length, 0);
 });
 
-test("closes after selecting suggestion", (t) => {
+test("closes after selecting suggestion", (t: Context) => {
   const { wrapper } = t.context;
   wrapper.simulateTyping("level:i");
   wrapper.instance().onSelectValue("level:info");
@@ -38,7 +44,7 @@ test("closes after selecting suggestion", (t) => {
   t.false(wrapper.state("dropdownOpen"));
 });
 
-test("closes when navigating with arrow keys", (t) => {
+test("closes when navigating with arrow keys", (t: Context) => {
   const { wrapper } = t.context;
   wrapper.simulateTyping("lev");
   t.true(wrapper.state("dropdownOpen"));
@@ -120,7 +126,10 @@ test("does not open when data attribute changes", (t) => {
 
 test("highlights valid tokens in the query", (t) => {
   const { wrapper } = t.context;
-  wrapper.simulateTyping('foo level:info level:foo bar (foo:bar OR other:"foo bar") other:a* http_response:400 baz http_response:>600');
+  wrapper.simulateTyping(
+    "foo level:info level:foo bar " +
+    '(foo:bar OR other:"foo bar") ' +
+    "other:a* http_response:400 baz http_response:>600");
   const overlay = wrapper.state("overlayComponents");
   const content = overlay[1].props.children;
   t.is(content[0], "foo ");
