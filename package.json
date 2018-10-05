@@ -19,23 +19,14 @@
     "autosuggest",
     "dropdown"
   ],
-  "files": [
-    "css",
-    "es",
-    "lib",
-    "umd"
-  ],
-  "main": "lib/index.js",
-  "module": "es/index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "prebuild": "nwb clean-module && nwb clean-demo",
-    "build": "nwb build-react-component",
-    "test:lint": "standard --verbose | snazzy",
-    "test:unit": "ava --no-cache 'src/**/*.spec.js'",
-    "test:integration": "ava --no-cache 'tests/**/*.test.js'",
-    "test": "npm-run-all test:*",
+    "lint": "tslint {src,tests}/**/*",
+    "test": "tsc && ava",
     "start": "nwb serve-react-demo",
-    "prepare": "npm run build"
+    "build": "tsc",
+    "prepublishOnly": "tsc"
   },
   "peerDependencies": {
     "react": "16.x"
@@ -48,6 +39,15 @@
     "@babel/preset-env": "^7.0.0-beta.42",
     "@babel/preset-react": "^7.0.0-beta.42",
     "@babel/register": "^7.0.0-beta.42",
+    "@types/enzyme": "^3.1.14",
+    "@types/enzyme-adapter-react-16": "^1.0.3",
+    "@types/escape-string-regexp": "^1.0.0",
+    "@types/jsdom": "^11.12.0",
+    "@types/react": "^16.4.14",
+    "@types/react-dom": "^16.0.8",
+    "@types/react-textarea-autosize": "^4.3.3",
+    "@types/sinon": "^5.0.3",
+    "@types/styled-system": "^3.0.4",
     "ava": "^1.0.0-beta.3",
     "babel-eslint": "^8.2.2",
     "enzyme": "^3.3.0",
@@ -58,14 +58,14 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "sinon": "^4.4.8",
-    "snazzy": "^7.1.1",
-    "standard": "^11.0.1"
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.1"
   },
   "dependencies": {
     "clean-element": "^1.0.0",
     "emotion": "^9.2.6",
     "escape-string-regexp": "^1.0.5",
-    "prop-types": "^15.6.1",
     "react-emotion": "^9.2.6",
     "react-page-click": "^4.0.2",
     "react-textarea-autosize": "^6.0.0",
@@ -82,19 +82,13 @@
     ]
   },
   "ava": {
+    "compileEnhancements": false,
+    "extensions": [
+      "ts"
+    ],
     "require": [
-      "@babel/register",
-      "@babel/polyfill",
-      "./tests/helpers.js"
-    ]
-  },
-  "standard": {
-    "parser": "babel-eslint",
-    "globals": [
-      "beforeEach",
-      "afterEach",
-      "describe",
-      "it"
+      "ts-node/register/transpile-only",
+      "./tests/helpers.ts"
     ]
   }
 }
