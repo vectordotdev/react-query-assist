@@ -1,5 +1,5 @@
 import test from "ava";
-import * as token from "./token";
+import * as token from "./index";
 
 test("tokenRegex", (t) => {
   t.true(token.tokenRegex().test("foo:bar"));

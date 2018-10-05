@@ -30,7 +30,25 @@ export function tokenRegex(opts: ITokenRegexOptions = {}) {
   );
 }
 
-export function parseToken(value: string, attributes: IQueryAssistData = [], nameKeyIncludes = []) {
+export interface ITokenData {
+  fullToken?: string;
+  attributeName?: string;
+  attributeValue?: string;
+  attributeNameValid?: boolean;
+  attributeValueValid?: boolean;
+  prepended?: string;
+  operator?: string;
+  negated?: boolean;
+  quoted?: boolean;
+  wildcard?: boolean;
+}
+
+export function parseToken(
+  value: RegExpExecArray | string | string[], 
+  attributes: IQueryAssistData = [], 
+  nameKeyIncludes: string[] = []
+  ): ITokenData {
+
   const results = Array.isArray(value)
     ? value
     : tokenRegex({ partial: true }).exec(value);
@@ -90,11 +108,11 @@ export function serializeToken(token: IToken) {
   return `${prepended}${attributeName}:${operator}${attributeValue}`;
 }
 
-export function extractTokens(value, attributes, nameKeyIncludes) {
+export function extractTokens(value: string, attributes?: IQueryAssistData, nameKeyIncludes?: string[]) {
   const positions = [];
   const regex = tokenRegex();
 
-  let result;
+  let result: RegExpExecArray | null | undefined;
   while ((result = regex.exec(value)) !== null) {
     if (attributes) {
       const parsed = parseToken(result, attributes, nameKeyIncludes);

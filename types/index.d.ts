@@ -19,8 +19,8 @@ declare interface IReactQueryAssistProps {
 
 declare interface IQueryAssistDataEntry {
   name: string;
-  type: string;
-  enumerations: string[] | null;
+  type?: string;
+  enumerations?: string[] | null;
 }
 
 declare type IQueryAssistData = IQueryAssistDataEntry[];
