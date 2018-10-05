@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": "src",
+    "outDir": "dist",
+    "target": "es5",
+    "jsx": "react",
+    "module": "commonjs",
+    "lib": ["es6", "dom"],
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "allowJs": false,
+    "noResolve": false,
+    "noImplicitReturns": true,
+    "noImplicitThis": false,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noUnusedLocals": true,
+    "paths": {
+      "react-query-assist/*": ["src/*"],
+      "*": [
+        "types/*"
+      ]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "types/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "scripts",
+    "acceptance-tests",
+    "webpack",
+    "jest",
+    "src/setupTests.ts"
+  ]
+}
